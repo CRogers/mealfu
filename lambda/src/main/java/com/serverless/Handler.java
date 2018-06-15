@@ -16,7 +16,7 @@ public class Handler implements RequestHandler<Map<String, Object>, ApiGatewayRe
     @Override
     public ApiGatewayResponse handleRequest(Map<String, Object> input, Context context) {
         log.info("received: " + input);
-        Response responseBody = new Response("Hello, the current time is " + new Date());
+        Response responseBody = new Response("UPDATED: Hello, the current time is " + new Date());
         Map<String, String> headers = new HashMap<>();
         headers.put("X-Powered-By", "AWS Lambda & Serverless");
         headers.put("Content-Type", "application/json");
