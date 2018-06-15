@@ -48,7 +48,7 @@ jobs:
 
   deploy-lambdas:
     docker:
-      - image: circleci/node:10.4.1-stretch
+      - image: circleci/node:10
 
     working_directory: ~/repo
 
