@@ -98,6 +98,9 @@ functions:
 #       Description: "Description for the output"
 #       Value: "Some output value"
 
+plugins:
+  - serverless-prune-plugin
+
 custom:
   prune:
     automatic: true
