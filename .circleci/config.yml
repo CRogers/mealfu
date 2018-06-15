@@ -7,7 +7,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/openjdk:8-jdk-node
+      - image: circleci/openjdk:8-jdk
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -41,5 +41,50 @@ jobs:
       # run tests!
       - run: gradle test
 
+  deploy-lambdas:
+    docker:
+      - image: 10.4.1-stretch
 
+    working_directory: ~/repo
+
+    environment:
+      TERM: dumb
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          name: Restore Yarn Package Cache
+          keys:
+            - yarn-packages-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - yarn-packages-{{ .Branch }}
+            - yarn-packages-master
+            - yarn-packages-
+
+      - run:
+          name: Install Dependencies
+          command: yarn install
+
+      - save_cache:
+          name: Save Yarn Package Cache
+          key: yarn-packages-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules/
+
+      - run:
+          name: Deploying Lambdas
+          command: yarn run serverless deploy -v
+
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build
+      - deploy-lambdas:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
 
