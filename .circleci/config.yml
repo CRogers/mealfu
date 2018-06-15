@@ -41,6 +41,11 @@ jobs:
       # run tests!
       - run: gradle test
 
+      - persist_to_workspace:
+          root: .
+          paths:
+            - lambda/build
+
   deploy-lambdas:
     docker:
       - image: circleci/node:10.4.1-stretch
@@ -70,6 +75,9 @@ jobs:
           key: yarn-packages-{{ .Branch }}-{{ checksum "yarn.lock" }}
           paths:
             - node_modules/
+
+      - attach_workspace:
+          at: .
 
       - run:
           name: Deploying Lambdas
