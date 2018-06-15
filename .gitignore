@@ -1,0 +1,14 @@
+.gradle/
+
+*.iml
+*.ipr
+*.iws
+.idea/
+
+out/
+generated_src/
+generated_testSrc/
+
+build/
+.ideaDataSources/
+dataSources/
