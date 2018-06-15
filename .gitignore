@@ -12,3 +12,6 @@ generated_testSrc/
 build/
 .ideaDataSources/
 dataSources/
+
+node_modules/
+.serverless/

@@ -1,0 +1,12 @@
+{
+  "name": "mealfu",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:CRogers/mealfu.git",
+  "author": "Callum Rogers",
+  "license": "UNLICENSED",
+  "private": true,
+  "devDependencies": {
+    "serverless": "^1.27.3"
+  }
+}
