@@ -46,7 +46,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - lambda/build
+            - lambda/build/distributions
 
   deploy-lambdas:
     docker:
