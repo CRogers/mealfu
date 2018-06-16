@@ -46,7 +46,7 @@ jobs:
           paths:
             - lambda/build/distributions
 
-  deploy-lambdas:
+  deploy:
     docker:
       - image: circleci/node:10
 
@@ -83,13 +83,17 @@ jobs:
           name: Deploying Lambdas
           command: yarn run serverless deploy -v
 
+      - run:
+          name: Deploying Frontend
+          command: ./.circleci/deploy-gh-pages.sh
+
 
 workflows:
   version: 2
   build-deploy:
     jobs:
       - build
-      - deploy-lambdas:
+      - deploy:
           requires:
             - build
           filters:
