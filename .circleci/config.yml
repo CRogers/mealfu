@@ -4,7 +4,7 @@
 #
 version: 2
 jobs:
-  build:
+  build-lambdas:
     docker:
       # specify the version you desire here
       - image: circleci/openjdk:8-jdk
@@ -46,7 +46,7 @@ jobs:
           paths:
             - lambda/build/distributions
 
-  deploy:
+  deploy-lambdas:
     docker:
       - image: circleci/node:10
 
@@ -92,10 +92,10 @@ workflows:
   version: 2
   build-deploy:
     jobs:
-      - build
-      - deploy:
+      - build-lambdas
+      - deploy-lambdas:
           requires:
-            - build
+            - build-lambdas
           filters:
             branches:
               only: master
