@@ -85,7 +85,7 @@ jobs:
 
       - run:
           name: Deploying Frontend
-          command: ./.circleci/deploy-gh-pages.sh
+          command: ./scripts/deploy-gh-pages.sh
 
 
 workflows:
