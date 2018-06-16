@@ -87,6 +87,40 @@ jobs:
           name: Deploying Frontend
           command: ./scripts/deploy-gh-pages.sh
 
+  build-frontend:
+    docker:
+      - image: circleci/node:10
+
+    working_directory: ~/repo
+
+    environment:
+      TERM: dumb
+
+    steps:
+      - checkout
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - frontend/site
+
+  deploy-frontend:
+      docker:
+        - image: circleci/node:10
+
+      working_directory: ~/repo
+
+      environment:
+        TERM: dumb
+
+      steps:
+        - attach_workspace:
+            at: .
+
+      - run:
+          name: Deploying Frontend
+          command: ./scripts/deploy-gh-pages.sh
+
 
 workflows:
   version: 2
@@ -96,6 +130,14 @@ workflows:
       - deploy-lambdas:
           requires:
             - build-lambdas
+          filters:
+            branches:
+              only: master
+      - build-frontend
+      - deploy-frontend:
+          requires:
+            - build-frontend
+            - deploy-lambdas
           filters:
             branches:
               only: master
