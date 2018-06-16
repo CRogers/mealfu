@@ -11,7 +11,7 @@ git checkout --orphan gh-pages
 
 cp -r frontend/site/ site/
 
-echo * | tr -s " " "\n" | grep -v -E "site|.circleci" | xargs rm -rf
+echo {.??,}* | tr -s " " "\n" | grep -v -E "^(.git|site)$" | xargs rm -rf
 cp site/* .
 rm -rf site/
 
