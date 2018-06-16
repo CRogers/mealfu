@@ -21,6 +21,6 @@ echo Remaining files:
 git status
 echo
 
-git commit -m "$HASH_MESSAGE"
+git commit -m "$HASH_MESSAGE [skip ci]"
 
 git push -f origin gh-pages
