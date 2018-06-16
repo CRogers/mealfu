@@ -114,6 +114,8 @@ jobs:
       TERM: dumb
 
     steps:
+      - checkout
+
       - attach_workspace:
           at: .
 
