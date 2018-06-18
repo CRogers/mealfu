@@ -97,7 +97,7 @@ jobs:
       TERM: dumb
 
     steps:
-      - checkout
+      - checkout:
           path: ~/repo
 
       - run: yarn install
