@@ -83,10 +83,6 @@ jobs:
           name: Deploying Lambdas
           command: yarn run serverless deploy -v
 
-      - run:
-          name: Deploying Frontend
-          command: ./scripts/deploy-gh-pages.sh
-
   build-frontend:
     docker:
       - image: circleci/node:10
