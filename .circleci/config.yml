@@ -99,6 +99,12 @@ jobs:
     steps:
       - checkout
 
+      - run: cd frontend/
+
+      - run: yarn install
+
+      - run: yarn run webpack
+
       - persist_to_workspace:
           root: .
           paths:
