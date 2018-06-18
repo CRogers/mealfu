@@ -15,3 +15,5 @@ dataSources/
 
 node_modules/
 .serverless/
+
+env/
