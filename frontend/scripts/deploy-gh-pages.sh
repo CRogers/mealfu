@@ -7,20 +7,20 @@ git config user.name "CircleCI build node"
 
 HASH_MESSAGE="$(git show --oneline | head -n1)"
 
-git checkout --orphan gh-pages
+GH_PAGES_DIR="~/gh-pages"
 
-cp -r frontend/site/ site/
+git checkout git@github.com:CRogers/mealfu-frontend.git "${GH_PAGES_DIR}"
 
-echo {.??,}* | tr -s " " "\n" | grep -v -E "^(.git|site)$" | xargs rm -rf
-cp site/* .
-rm -rf site/
+rm -rf "${GH_PAGES_DIR}/*"
+cp -r site/* "${GH_PAGES_DIR}"
 
+cd "${GH_PAGES_DIR}"
 git add --all .
 
 echo Remaining files:
 git status
 echo
 
-git commit -m "$HASH_MESSAGE [skip ci]"
+git commit -m "https://github.com/CRogers/mealfu/commit/${HASH_MESSAGE} (deployed by ${CIRCLE_BUILD_URL}) [skip ci]"
 
-git push -f origin gh-pages
+git push origin master
