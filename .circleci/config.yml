@@ -61,10 +61,9 @@ jobs:
       - restore_cache:
           name: Restore Yarn Package Cache
           keys:
-            - yarn-packages-{{ .Branch }}-{{ checksum "yarn.lock" }}
-            - yarn-packages-{{ .Branch }}
-            - yarn-packages-master
-            - yarn-packages-
+            - yarn-packages-toplevel-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - yarn-packages-toplevel-{{ .Branch }}
+            - yarn-packages-toplevel-master
 
       - run:
           name: Install Dependencies
@@ -72,7 +71,7 @@ jobs:
 
       - save_cache:
           name: Save Yarn Package Cache
-          key: yarn-packages-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          key: yarn-packages-toplevel-{{ .Branch }}-{{ checksum "yarn.lock" }}
           paths:
             - node_modules/
 
@@ -99,16 +98,15 @@ jobs:
       - restore_cache:
           name: Restore Yarn Package Cache
           keys:
-            - yarn-packages-{{ .Branch }}-{{ checksum "yarn.lock" }}
-            - yarn-packages-{{ .Branch }}
-            - yarn-packages-master
-            - yarn-packages-
+            - yarn-packages-frontend-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - yarn-packages-frontend-{{ .Branch }}
+            - yarn-packages-frontend-master
 
       - run: yarn install
 
       - save_cache:
           name: Save Yarn Package Cache
-          key: yarn-packages-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          key: yarn-packages-frontend-{{ .Branch }}-{{ checksum "yarn.lock" }}
           paths:
             - node_modules/
 
