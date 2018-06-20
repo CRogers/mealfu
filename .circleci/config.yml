@@ -106,6 +106,12 @@ jobs:
 
       - run: yarn install
 
+      - save_cache:
+          name: Save Yarn Package Cache
+          key: yarn-packages-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules/
+
       - run: yarn run webpack
 
       - persist_to_workspace:
