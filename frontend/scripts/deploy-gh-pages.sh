@@ -9,7 +9,7 @@ HASH_MESSAGE="$(git show --oneline | head -n1)"
 
 GH_PAGES_DIR="~/gh-pages"
 
-git checkout git@github.com:CRogers/mealfu-frontend.git "${GH_PAGES_DIR}"
+git clone git@github.com:CRogers/mealfu-frontend.git "${GH_PAGES_DIR}"
 
 rm -rf "${GH_PAGES_DIR}/*"
 cp -r site/* "${GH_PAGES_DIR}"
