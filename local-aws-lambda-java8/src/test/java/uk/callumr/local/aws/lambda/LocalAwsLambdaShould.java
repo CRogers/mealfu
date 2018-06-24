@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class LocalAwsLambdaShould {
     @Test
     public void run_a_lambda_with_a_get_method() throws IOException {
-        LocalAwsLambda localAwsLambda = new LocalAwsLambda(ServerlessConfig.builder()
+        LocalAwsLambda localAwsLambda = new LocalAwsLambda(0, ServerlessConfig.builder()
                 .putFunctions("test", FunctionConfig.builder()
                         .handler("handler")
                         .addEvents(HttpConfig.builder()
@@ -30,7 +30,7 @@ public class LocalAwsLambdaShould {
         localAwsLambda.start();
 
         HttpClient httpClient = HttpClients.createDefault();
-        HttpResponse response = httpClient.execute(new HttpGet("http://localhost:9876/foo"));
+        HttpResponse response = httpClient.execute(new HttpGet(localAwsLambda.urlBase() + "/foo"));
         String responseString = IOUtils.toString(response.getEntity().getContent());
 
         assertThat(responseString).isEqualTo("handler");
