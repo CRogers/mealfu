@@ -1,3 +1,7 @@
+plugins {
+    id 'org.inferred.processors' version '1.2.15'
+}
+
 apply plugin: 'idea'
 
 

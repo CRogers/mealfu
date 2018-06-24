@@ -1,0 +1,23 @@
+apply from: "${rootProject.rootDir}/gradle/java.gradle"
+
+dependencies {
+    implementation (
+            'com.amazonaws:aws-lambda-java-core:1.1.0',
+            'io.symphonia:lambda-logging:1.0.1',
+            'com.fasterxml.jackson.core:jackson-core:2.8.5',
+            'com.fasterxml.jackson.core:jackson-databind:2.8.5',
+            'com.fasterxml.jackson.core:jackson-annotations:2.8.5',
+
+            'com.sparkjava:spark-core:2.7.2',
+            'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.5'
+    )
+
+    processor (
+            'org.immutables:value:2.6.1'
+    )
+
+    testCompile (
+            'junit:junit:4.12',
+            'org.assertj:assertj-core:3.10.0'
+    )
+}

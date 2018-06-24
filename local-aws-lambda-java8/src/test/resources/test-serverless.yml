@@ -1,0 +1,10 @@
+functions:
+  hello:
+    handler: com.serverless.Handler
+    events:
+      - http:
+          path: hi
+          method: get
+
+some:
+  other: stuff

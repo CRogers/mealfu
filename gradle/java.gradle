@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'org.inferred.processors'
 
 repositories {
     mavenCentral()
