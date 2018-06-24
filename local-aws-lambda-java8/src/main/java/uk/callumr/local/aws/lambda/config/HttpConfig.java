@@ -10,4 +10,8 @@ import org.immutables.value.Value;
 public interface HttpConfig extends EventConfig {
     String path();
     String method();
+
+    static ImmutableHttpConfig.Builder builder() {
+        return ImmutableHttpConfig.builder();
+    }
 }

@@ -10,4 +10,8 @@ import java.util.List;
 public interface FunctionConfig {
     String handler();
     List<HttpConfig> events();
+
+    static ImmutableFunctionConfig.Builder builder() {
+        return ImmutableFunctionConfig.builder();
+    }
 }

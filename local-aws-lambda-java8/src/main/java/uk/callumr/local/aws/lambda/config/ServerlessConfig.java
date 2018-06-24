@@ -24,4 +24,8 @@ public interface ServerlessConfig {
             throw new RuntimeException(e);
         }
     }
+
+    static ImmutableServerlessConfig.Builder builder() {
+        return ImmutableServerlessConfig.builder();
+    }
 }
