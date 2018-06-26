@@ -1,4 +1,3 @@
 rootProject.name = 'mealfu'
 
 include 'lambda'
-include 'local-aws-lambda-java8'
