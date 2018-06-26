@@ -1,4 +1,4 @@
-package com.serverless;
+package mealfu;
 
 import com.amazonaws.serverless.proxy.jersey.JerseyLambdaContainerHandler;
 import com.amazonaws.serverless.proxy.model.AwsProxyRequest;

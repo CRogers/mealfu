@@ -1,6 +1,5 @@
 package mealfu;
 
-import com.serverless.JerseyConfig;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 
