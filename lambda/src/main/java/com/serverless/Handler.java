@@ -9,12 +9,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Handler implements RequestHandler<Map<String, Object>, ApiGatewayResponse> {
+public class Handler implements RequestHandler<String, ApiGatewayResponse> {
 
     private static final Logger log = LoggerFactory.getLogger(Handler.class);
 
     @Override
-    public ApiGatewayResponse handleRequest(Map<String, Object> input, Context context) {
+    public ApiGatewayResponse handleRequest(String input, Context context) {
         log.info("received: " + input);
         Response responseBody = new Response("UPDATED: Hello, the current time is " + new Date());
         Map<String, String> headers = new HashMap<>();

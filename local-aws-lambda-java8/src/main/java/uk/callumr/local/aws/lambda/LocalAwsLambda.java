@@ -5,6 +5,9 @@ import one.util.streamex.EntryStream;
 import spark.Service;
 import uk.callumr.local.aws.lambda.config.ServerlessConfig;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class LocalAwsLambda {
     private final Service service = Service.ignite();
 
@@ -38,5 +41,17 @@ public class LocalAwsLambda {
 
     public String urlBase() {
         return "http://localhost:" + service.port();
+    }
+
+    public static void main(String... args) throws InterruptedException {
+        Path serverlessPath = Paths.get(args[0]);
+        int port = Integer.valueOf(args[1]);
+        ServerlessConfig serverlessConfig = ServerlessConfig.deserializeFromFile(serverlessPath);
+        LocalAwsLambda localAwsLambda = new LocalAwsLambda(port, serverlessConfig);
+        localAwsLambda.start();
+
+        System.out.println("Started local aws lambda server at " + localAwsLambda.urlBase());
+
+        Thread.sleep(9999999999999L);
     }
 }
