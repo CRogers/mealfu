@@ -29,3 +29,12 @@ task buildZip(type: Zip) {
 }
 
 build.dependsOn buildZip
+
+task runLocalServer(type: JavaExec) {
+    classpath = sourceSets.test.runtimeClasspath
+
+    main = 'mealfu.LocalServer'
+
+    // arguments to pass to the application
+    args '9876'
+}
