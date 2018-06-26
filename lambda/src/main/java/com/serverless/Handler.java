@@ -1,29 +1,32 @@
 package com.serverless;
 
+import com.amazonaws.serverless.proxy.jersey.JerseyLambdaContainerHandler;
+import com.amazonaws.serverless.proxy.model.AwsProxyRequest;
+import com.amazonaws.serverless.proxy.model.AwsProxyResponse;
 import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-public class Handler implements RequestHandler<String, ApiGatewayResponse> {
+public class Handler implements RequestStreamHandler {
 
     private static final Logger log = LoggerFactory.getLogger(Handler.class);
 
+    private static final JerseyLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler
+            = JerseyLambdaContainerHandler.getAwsProxyHandler(JerseyConfig.JERSY_APPLICATION);
+
+
     @Override
-    public ApiGatewayResponse handleRequest(String input, Context context) {
-        log.info("received: " + input);
-        Response responseBody = new Response("UPDATED: Hello, the current time is " + new Date());
-        Map<String, String> headers = new HashMap<>();
-        headers.put("X-Powered-By", "AWS Lambda & Serverless");
-        headers.put("Content-Type", "application/json");
-        return ApiGatewayResponse.builder()
-                .setStatusCode(200)
-                .setObjectBody(responseBody)
-                .setHeaders(headers)
-                .build();
+    public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
+        log.info("received request");
+
+        handler.proxyStream(input, output, context);
+
+        IOUtils.closeQuietly(output);
     }
 }
