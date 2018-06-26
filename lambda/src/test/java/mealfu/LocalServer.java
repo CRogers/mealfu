@@ -9,7 +9,9 @@ import java.net.URI;
 
 public class LocalServer {
     public static void main(String... args) throws IOException, InterruptedException {
-        HttpServer httpServer = GrizzlyHttpServerFactory.createHttpServer(URI.create("http://localhost:7787"), JerseyConfig.JERSY_APPLICATION);
+        int port = Integer.valueOf(args[0]);
+
+        HttpServer httpServer = GrizzlyHttpServerFactory.createHttpServer(URI.create("http://localhost:" + port), JerseyConfig.JERSY_APPLICATION);
 
         httpServer.start();
 
