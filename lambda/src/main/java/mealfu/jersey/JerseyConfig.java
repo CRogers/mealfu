@@ -9,5 +9,5 @@ public enum JerseyConfig {
             .packages("mealfu.servlets");
 
     public static final ResourceConfig PROD_JERSEY_APPLICATION = new ResourceConfig()
-            .register(CORSResponseFilter.just("http://crogers.github.io"));
+            .register(CORSResponseFilter.just("https://crogers.github.io"));
 }
