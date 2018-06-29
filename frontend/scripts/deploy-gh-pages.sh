@@ -22,6 +22,10 @@ echo Remaining files:
 git status
 echo
 
-git commit -m "https://github.com/CRogers/mealfu/commit/${HASH_MESSAGE} (deployed by ${CIRCLE_BUILD_URL}) [skip ci]"
-
-git push origin master
+if [ -n "$(git status --porcelain)" ]; then
+    echo "There are changes, committing and pushing";
+    git commit -m "https://github.com/CRogers/mealfu/commit/${HASH_MESSAGE} (deployed by ${CIRCLE_BUILD_URL}) [skip ci]"
+    git push origin master
+else
+    echo "No changes, doing nothing";
+fi
