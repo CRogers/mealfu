@@ -20,6 +20,8 @@ service: mealfu
 provider:
   name: aws
   runtime: java8
+  memorySize: 192
+  timeout: 10
 
 # you can overwrite defaults here
 #  stage: dev
@@ -51,15 +53,17 @@ package:
 
 functions:
   hello:
-    handler: com.serverless.Handler
+    handler: mealfu.Handler
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
     events:
       - http:
-          path: hi
-          method: get
+          path: /{proxy+}
+          method: any
+          cors: true
+          integration: lambda-proxy
 #      - s3: ${env:BUCKET}
 #      - schedule: rate(10 minutes)
 #      - sns: greeter-topic
