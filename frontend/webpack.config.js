@@ -35,7 +35,7 @@ module.exports = (env, originalArgv) => {
             }),
             new webpack.DefinePlugin({
                 URL_BASE: JSON.stringify(mode === 'production'
-                    ? 'https://q6zvj19zu3.execute-api.eu-west-2.amazonaws.com/dev/'
+                    ? 'https://q6zvj19zu3.execute-api.eu-west-2.amazonaws.com/dev'
                     : 'http://localhost:9876')
             })
         ],
