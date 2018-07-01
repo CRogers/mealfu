@@ -29,8 +29,6 @@ jobs:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
 
-      - run: ./gradlew :lambda:build
-
       - persist_to_workspace:
           root: .
           paths:
@@ -52,17 +50,15 @@ jobs:
 
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "build.gradle" }}-{{ checksum event-store/build.gradle }}
+          - v1-dependencies-{{ checksum "build.gradle" }}-{{ checksum "event-store/build.gradle" }}
           - v1-dependencies-
 
-      - run: ./gradlew :event-store:dependencies :event-store:processorPath
+      - run: ./gradlew :event-store:test
 
       - save_cache:
           paths:
             - ~/.gradle
-          key: v1-dependencies-{{ checksum "build.gradle" }}-{{ checksum event-store/build.gradle }}
-
-      - run: ./gradlew :event-store:test
+          key: v1-dependencies-{{ checksum "build.gradle" }}-{{ checksum "event-store/build.gradle" }}
 
   deploy-lambdas:
     docker:
