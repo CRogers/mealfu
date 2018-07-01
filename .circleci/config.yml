@@ -22,7 +22,7 @@ jobs:
           - v1-dependencies-{{ checksum "build.gradle" }}
           - v1-dependencies-
 
-      - run: ./gradlew :lambda:dependencies :lambda:processorPath
+      - run: ./gradlew :lambda:build
 
       - save_cache:
           paths:
