@@ -2,16 +2,13 @@ package uk.callumr.eventstore.cockroachdb;
 
 import org.jooq.*;
 import org.jooq.conf.ParamType;
-import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.jooq.impl.DefaultDataType;
 import org.jooq.impl.SQLDataType;
 import uk.callumr.eventstore.EventStore;
 import uk.callumr.eventstore.core.*;
+import uk.callumr.eventstore.jooq.JooqUtils;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BinaryOperator;
@@ -24,68 +21,35 @@ public class CockroachDbEventStore implements EventStore {
     private static final Field<String> ENTITY_ID = DSL.field("entityId", SQLDataType.VARCHAR.nullable(false));
     private static final Field<String> EVENT_TYPE = DSL.field("eventType", SQLDataType.VARCHAR.nullable(false));
     private static final Field<String> DATA = DSL.field("data", SQLDataType.VARCHAR.nullable(false));
-    private static final Table<Record> EVENTS = DSL.table("hi.events");
 
+    private final Table<Record> eventsTable;
     private final DSLContext jooq;
 
-    static {
-        System.getProperties().setProperty("org.jooq.no-logo", "true");
-    }
-
-    public CockroachDbEventStore(String jdbcUrl) {
-        this.jooq = DSL.using(new ConnectionProvider() {
-            @Override
-            public Connection acquire() throws DataAccessException {
-                try {
-                    return DriverManager.getConnection(jdbcUrl, "root", "root");
-                } catch (SQLException e) {
-                    throw new DataAccessException("could not open connection", e);
-                }
-            }
-
-            @Override
-            public void release(Connection connection) throws DataAccessException {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    throw new DataAccessException("could not close connection", e);
-                }
-            }
-        }, SQLDialect.POSTGRES);
+    public CockroachDbEventStore(ConnectionProvider connectionProvider, String schema) {
+        this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES);
+        this.eventsTable = DSL.table(schema + ".events");
     }
 
     @Override
     public void clear() {
-        deleteAll();
-        createDatabase();
         createEventsTable();
         createIndex();
     }
 
-    private void deleteAll() {
-        jooq.transaction(configuration -> DSL.using(configuration).query("drop database if exists hi").execute());
-    }
-
-    private void createDatabase() {
-        jooq.transaction(configuration -> DSL.using(configuration).query("create database hi").execute());
-    }
-
     private void createEventsTable() {
-        jooq.transaction(configuration -> DSL.using(configuration)
-                .createTable(EVENTS)
+        logSQL(jooq.createTable(eventsTable)
                 .column(VERSION)
                 .column(ENTITY_ID)
                 .column(EVENT_TYPE)
                 .column(DATA)
-                .constraint(DSL.primaryKey(VERSION)).execute());
+                .constraint(DSL.primaryKey(VERSION))).execute();
 
     }
 
     private void createIndex() {
-        jooq.transaction(configuration -> logSQL(DSL.using(configuration)
-                .createIndexIfNotExists("entityId")
-                .on(EVENTS, ENTITY_ID, VERSION))
-                .execute());
+        logSQL(jooq.createIndexIfNotExists("entityId")
+                .on(eventsTable, ENTITY_ID, VERSION))
+                .execute();
     }
 
     @Override
@@ -97,12 +61,14 @@ public class CockroachDbEventStore implements EventStore {
     public Stream<VersionedEvent> events(EventFilters filters) {
         Condition condition = eventFiltersToCondition(filters);
 
-        return jooq.transactionResult(configuration -> logSQL(DSL.using(configuration)
-                .select(VERSION, ENTITY_ID, EVENT_TYPE, DATA)
-                .from(EVENTS)
-                .where(condition))
-                .stream()
-                .map(this::toVersionedEvent));
+        return jooq.transactionResult(configuration -> {
+            return logSQL(DSL.using(configuration)
+                    .select(VERSION, ENTITY_ID, EVENT_TYPE, DATA)
+                    .from(eventsTable)
+                    .where(condition))
+                    .stream()
+                    .map(this::toVersionedEvent);
+        });
     }
 
     @Override
@@ -114,7 +80,7 @@ public class CockroachDbEventStore implements EventStore {
 
             return logSQL(dsl
                     .select(VERSION, ENTITY_ID, EVENT_TYPE, DATA)
-                    .from(EVENTS)
+                    .from(eventsTable)
                     .where(condition))
                     .stream()
                     .map(this::toVersionedEvent);
@@ -136,13 +102,13 @@ public class CockroachDbEventStore implements EventStore {
         int addedRows = jooq.transactionResult(configuration -> {
             DSLContext dsl = DSL.using(configuration);
 
-            return logSQL(dsl.insertInto(EVENTS)
+            return logSQL(dsl.insertInto(eventsTable)
                     .columns(ENTITY_ID, EVENT_TYPE, DATA)
                     .select(this.<Record3<String, String, String>>selectStar(dsl)
                             .from(values)
                             .whereNotExists(dsl
                                     .selectOne()
-                                    .from(EVENTS)
+                                    .from(eventsTable)
                                     .where(versionSearch))))
                     .execute();
         });
@@ -158,7 +124,7 @@ public class CockroachDbEventStore implements EventStore {
     private void insertEvents(DSLContext dsl, Stream<Event> events) {
         logSQL(events
                 .reduce(
-                        dsl.insertInto(EVENTS).columns(ENTITY_ID, EVENT_TYPE, DATA),
+                        dsl.insertInto(eventsTable).columns(ENTITY_ID, EVENT_TYPE, DATA),
                         this::insertEvent,
                         throwErrorOnParallelCombine()))
                 .execute();
@@ -199,5 +165,9 @@ public class CockroachDbEventStore implements EventStore {
                         .data(record.component4())
                         .build())
                 .build();
+    }
+
+    static {
+        JooqUtils.noLogo();
     }
 }
