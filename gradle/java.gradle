@@ -3,6 +3,10 @@ apply plugin: 'org.inferred.processors'
 
 repositories {
     mavenCentral()
+
+    maven {
+        url 'https://dl.bintray.com/palantir/releases' // docker-compose-rule is published on bintray
+    }
 }
 
 sourceCompatibility = 1.8

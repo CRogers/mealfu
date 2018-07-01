@@ -1,0 +1,23 @@
+apply from: "${rootProject.rootDir}/gradle/java.gradle"
+
+dependencies {
+    compile (
+            'org.jooq:jooq:3.10.7',
+            'org.postgresql:postgresql:42.1.4',
+            'one.util:streamex:0.6.6',
+            'org.slf4j:slf4j-simple:1.7.25',
+            'com.google.guava:guava:22.0',
+    )
+
+    processor (
+            'org.immutables:value:2.5.3',
+            'org.derive4j:derive4j:0.12.4',
+    )
+
+    testCompile (
+            'junit:junit:4.12',
+            'org.assertj:assertj-core:3.8.0',
+            'org.mockito:mockito-core:2.8.47',
+            'com.palantir.docker.compose:docker-compose-rule-junit4:0.32.1',
+    )
+}
