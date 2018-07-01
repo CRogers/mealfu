@@ -11,11 +11,10 @@ import org.jooq.impl.DSL;
 import org.junit.ClassRule;
 import test.eventstore.EventStoreShould;
 import uk.callumr.eventstore.EventStore;
-import uk.callumr.eventstore.cockroachdb.CockroachDbEventStore;
 import uk.callumr.eventstore.cockroachdb.JdbcConnectionProvider;
 import uk.callumr.eventstore.jooq.JooqUtils;
 
-public class CockroachDbEventStoreShould extends EventStoreShould {
+public class PostgresEventStore extends EventStoreShould {
     @ClassRule
     public static DockerComposeRule dockerComposeRule = DockerComposeRule.builder()
             .file(EventStoreShould.class.getResource("/postgres.yml").getFile())
@@ -23,11 +22,11 @@ public class CockroachDbEventStoreShould extends EventStoreShould {
             .shutdownStrategy(ShutdownStrategy.SKIP)
             .build();
 
-    public CockroachDbEventStoreShould() {
-        super(cockroachdb());
+    public PostgresEventStore() {
+        super(postgres());
     }
 
-    private static EventStore cockroachdb() {
+    private static EventStore postgres() {
         ConnectionProvider testConnectionProvider = connectionProviderForDatabase("postgres");
 
         String schema = randomSchemaName();
@@ -35,7 +34,7 @@ public class CockroachDbEventStoreShould extends EventStoreShould {
                 .query("create schema " + schema)
                 .execute();
 
-        return new CockroachDbEventStore(testConnectionProvider, schema);
+        return new uk.callumr.eventstore.cockroachdb.PostgresEventStore(testConnectionProvider, schema);
     }
 
     private static String randomSchemaName() {

@@ -15,7 +15,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public class CockroachDbEventStore implements EventStore {
+public class PostgresEventStore implements EventStore {
     private static final DataType<Long> SERIAL = new DefaultDataType<>(SQLDialect.POSTGRES, Long.class, "serial").nullable(false);
     private static final Field<Long> VERSION = DSL.field("version", SERIAL);
     private static final Field<String> ENTITY_ID = DSL.field("entityId", SQLDataType.VARCHAR.nullable(false));
@@ -25,7 +25,7 @@ public class CockroachDbEventStore implements EventStore {
     private final Table<Record> eventsTable;
     private final DSLContext jooq;
 
-    public CockroachDbEventStore(ConnectionProvider connectionProvider, String schema) {
+    public PostgresEventStore(ConnectionProvider connectionProvider, String schema) {
         this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES);
         this.eventsTable = DSL.table(schema + ".events");
     }
