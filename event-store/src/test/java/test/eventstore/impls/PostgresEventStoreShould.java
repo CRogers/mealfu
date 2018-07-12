@@ -14,7 +14,7 @@ import uk.callumr.eventstore.EventStore;
 import uk.callumr.eventstore.cockroachdb.JdbcConnectionProvider;
 import uk.callumr.eventstore.jooq.JooqUtils;
 
-public class PostgresEventStore extends EventStoreShould {
+public class PostgresEventStoreShould extends EventStoreShould {
     @ClassRule
     public static DockerComposeRule dockerComposeRule = DockerComposeRule.builder()
             .file(EventStoreShould.class.getResource("/postgres.yml").getFile())
@@ -22,7 +22,7 @@ public class PostgresEventStore extends EventStoreShould {
             .shutdownStrategy(ShutdownStrategy.SKIP)
             .build();
 
-    public PostgresEventStore() {
+    public PostgresEventStoreShould() {
         super(postgres());
     }
 
