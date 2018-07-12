@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BinaryOperator;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -58,21 +59,19 @@ public class PostgresEventStore implements EventStore {
 
     @Override
     public void addEvent(Event event) {
-        jooq.transaction(configuration -> insertEvents(DSL.using(configuration), Stream.of(event)));
+        transaction(dsl -> insertEvents(dsl, Stream.of(event)));
     }
 
     @Override
     public Stream<VersionedEvent> events(EventFilters filters) {
         Condition condition = eventFiltersToCondition(filters);
 
-        return jooq.transactionResult(configuration -> {
-            return logSQL(DSL.using(configuration)
-                    .select(VERSION, ENTITY_ID, EVENT_TYPE, DATA)
-                    .from(eventsTable)
-                    .where(condition))
-                    .stream()
-                    .map(this::toVersionedEvent);
-        });
+        return transactionResult(dsl -> logSQL(dsl
+                .select(VERSION, ENTITY_ID, EVENT_TYPE, DATA)
+                .from(eventsTable)
+                .where(condition))
+                .stream()
+                .map(this::toVersionedEvent));
     }
 
     @Override
@@ -93,9 +92,7 @@ public class PostgresEventStore implements EventStore {
     }
 
     private int withEventsInner(Condition condition, Function<Stream<VersionedEvent>, Stream<Event>> projectionFunc) {
-        Stream<VersionedEvent> events = jooq.transactionResult(configuration -> {
-            DSLContext dsl = DSL.using(configuration);
-
+        Stream<VersionedEvent> events = transactionResult(dsl -> {
             return logSQL(dsl
                     .select(VERSION, ENTITY_ID, EVENT_TYPE, DATA)
                     .from(eventsTable)
@@ -117,9 +114,7 @@ public class PostgresEventStore implements EventStore {
         Table<Record3<String, String, String>> values = DSL.values(
                 DSL.row(event.entityId().asString(), event.eventType().asString(), event.data()));
 
-        return jooq.transactionResult(configuration -> {
-            DSLContext dsl = DSL.using(configuration);
-
+        return transactionResult(dsl -> {
             return logSQL(dsl.insertInto(eventsTable)
                     .columns(ENTITY_ID, EVENT_TYPE, DATA)
                     .select(this.<Record3<String, String, String>>selectStar(dsl)
@@ -130,6 +125,21 @@ public class PostgresEventStore implements EventStore {
                                     .where(versionSearch)
                                     .and(condition))))
                     .execute();
+        });
+    }
+
+    private <R> R transactionResult(Function<DSLContext, R> func) {
+        return jooq.transactionResult(configuration -> {
+            DSLContext dsl = DSL.using(configuration);
+            logSQL(dsl.query("set transaction isolation level serializable")).execute();
+            return func.apply(dsl);
+        });
+    }
+
+    private void transaction(Consumer<DSLContext> consumer) {
+        transactionResult(dsl -> {
+            consumer.accept(dsl);
+            return null;
         });
     }
 
