@@ -1,7 +1,6 @@
 package test.eventstore;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import uk.callumr.eventstore.EventStore;
 import uk.callumr.eventstore.core.EntityId;
@@ -124,7 +123,6 @@ public abstract class EventStoreShould {
     }
 
     @Test
-    @Ignore
     public void reprojection_should_take_into_account_new_events_if_added_when_the_projection_is_being_calculated() {
         Event event1 = Event.of(JAMES, EVENT_TYPE, EVENT_DATA);
         Event event2 = Event.of(JAMES, OTHER_EVENT_TYPE, EVENT_DATA);

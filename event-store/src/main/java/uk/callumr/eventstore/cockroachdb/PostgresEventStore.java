@@ -1,5 +1,7 @@
 package uk.callumr.eventstore.cockroachdb;
 
+import com.evanlennick.retry4j.CallExecutor;
+import com.evanlennick.retry4j.config.RetryConfigBuilder;
 import org.jooq.*;
 import org.jooq.conf.ParamType;
 import org.jooq.impl.DSL;
@@ -9,6 +11,7 @@ import uk.callumr.eventstore.EventStore;
 import uk.callumr.eventstore.core.*;
 import uk.callumr.eventstore.jooq.JooqUtils;
 
+import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BinaryOperator;
@@ -21,6 +24,7 @@ public class PostgresEventStore implements EventStore {
     private static final Field<String> ENTITY_ID = DSL.field("entityId", SQLDataType.VARCHAR.nullable(false));
     private static final Field<String> EVENT_TYPE = DSL.field("eventType", SQLDataType.VARCHAR.nullable(false));
     private static final Field<String> DATA = DSL.field("data", SQLDataType.VARCHAR.nullable(false));
+    private static final int MAX_TRIES = 10;
 
     private final Table<Record> eventsTable;
     private final DSLContext jooq;
@@ -75,6 +79,20 @@ public class PostgresEventStore implements EventStore {
     public void withEvents(EventFilters filters, Function<Stream<VersionedEvent>, Stream<Event>> projectionFunc) {
         Condition condition = eventFiltersToCondition(filters);
 
+        new CallExecutor<>(new RetryConfigBuilder()
+                .withMaxNumberOfTries(MAX_TRIES)
+                .withNoWaitBackoff()
+                .withDelayBetweenTries(Duration.ZERO)
+                .retryOnReturnValue(0)
+                .build())
+                .execute(() -> {
+                    int addedRows = withEventsInner(condition, projectionFunc);
+                    System.out.println("addedRows = " + addedRows);
+                    return addedRows;
+                });
+    }
+
+    private int withEventsInner(Condition condition, Function<Stream<VersionedEvent>, Stream<Event>> projectionFunc) {
         Stream<VersionedEvent> events = jooq.transactionResult(configuration -> {
             DSLContext dsl = DSL.using(configuration);
 
@@ -99,7 +117,7 @@ public class PostgresEventStore implements EventStore {
         Table<Record3<String, String, String>> values = DSL.values(
                 DSL.row(event.entityId().asString(), event.eventType().asString(), event.data()));
 
-        int addedRows = jooq.transactionResult(configuration -> {
+        return jooq.transactionResult(configuration -> {
             DSLContext dsl = DSL.using(configuration);
 
             return logSQL(dsl.insertInto(eventsTable)
@@ -113,8 +131,6 @@ public class PostgresEventStore implements EventStore {
                                     .and(condition))))
                     .execute();
         });
-
-        System.out.println("addedRows = " + addedRows);
     }
 
     private <T extends Record> SelectSelectStep<T> selectStar(DSLContext dsl) {

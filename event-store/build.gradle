@@ -7,6 +7,7 @@ dependencies {
             'one.util:streamex:0.6.6',
             'org.slf4j:slf4j-simple:1.7.25',
             'com.google.guava:guava:22.0',
+            'com.evanlennick:retry4j:0.13.0',
     )
 
     processor (
