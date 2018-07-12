@@ -52,7 +52,7 @@ jobs:
           - v2-dependencies-{{ checksum "build.gradle" }}-{{ checksum "event-store/build.gradle" }}
           - v2-dependencies-
 
-      - run: ./gradlew --no-daemon :event-store:test
+      - run: ./gradlew --no-daemon --info :event-store:test
 
       - save_cache:
           paths:
