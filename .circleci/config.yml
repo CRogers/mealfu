@@ -60,7 +60,7 @@ jobs:
           key: v2-dependencies-{{ checksum "build.gradle" }}-{{ checksum "event-store/build.gradle" }}
 
       - store_test_results:
-          path: build/test-results
+          path: event-store/build/test-results
 
   deploy-lambdas:
     docker:
