@@ -109,7 +109,8 @@ public class PostgresEventStore implements EventStore {
                             .whereNotExists(dsl
                                     .selectOne()
                                     .from(eventsTable)
-                                    .where(versionSearch))))
+                                    .where(versionSearch)
+                                    .and(condition))))
                     .execute();
         });
 
