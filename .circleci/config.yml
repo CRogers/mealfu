@@ -74,8 +74,6 @@ jobs:
     steps:
       - checkout
 
-      - run: echo ${DB_SCHEMA}
-
       - restore_cache:
           name: Restore Yarn Package Cache
           keys:
