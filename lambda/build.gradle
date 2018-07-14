@@ -15,6 +15,10 @@ dependencies {
 
     )
 
+    processor (
+            'org.immutables:value:2.5.3',
+    )
+
     testCompile (
             'org.glassfish.jersey.containers:jersey-container-grizzly2-http:2.26',
     )
