@@ -20,7 +20,7 @@ service: mealfu
 provider:
   name: aws
   runtime: java8
-  memorySize: 192
+  memorySize: 256
   timeout: 45
   vpc:
     securityGroupIds:
