@@ -1,6 +1,5 @@
 package test.eventstore;
 
-import org.junit.Before;
 import org.junit.Test;
 import uk.callumr.eventstore.EventStore;
 import uk.callumr.eventstore.core.EntityId;
@@ -26,11 +25,6 @@ public abstract class EventStoreShould {
 
     public EventStoreShould(EventStore eventStore) {
         this.eventStore = eventStore;
-    }
-
-    @Before
-    public void before() {
-        eventStore.clear();
     }
 
     @Test

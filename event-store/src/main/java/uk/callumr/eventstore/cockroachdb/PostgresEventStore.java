@@ -33,16 +33,17 @@ public class PostgresEventStore implements EventStore {
     public PostgresEventStore(ConnectionProvider connectionProvider, String schema) {
         this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES);
         this.eventsTable = DSL.table(schema + ".events");
+
+        createTablesUnlessExists();
     }
 
-    @Override
-    public void clear() {
+    public void createTablesUnlessExists() {
         createEventsTable();
         createIndex();
     }
 
     private void createEventsTable() {
-        logSQL(jooq.createTable(eventsTable)
+        logSQL(jooq.createTableIfNotExists(eventsTable)
                 .column(VERSION)
                 .column(ENTITY_ID)
                 .column(EVENT_TYPE)

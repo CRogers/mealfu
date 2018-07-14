@@ -18,19 +18,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class InMemoryEventStore implements EventStore {
-    private AtomicLong version;
-    private List<VersionedEvent> events;
+    private final AtomicLong version = new AtomicLong(0);
+    private final List<VersionedEvent> events = new ArrayList<>();
     private final EasyReadWriteLock lock = new EasyReadWriteLock();
-
-    public InMemoryEventStore() {
-        clear();
-    }
-
-    @Override
-    public void clear() {
-        version = new AtomicLong(0);
-        events = new ArrayList<>();
-    }
 
     @Override
     public void addEvent(Event event) {

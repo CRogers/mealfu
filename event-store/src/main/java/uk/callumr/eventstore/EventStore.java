@@ -14,5 +14,4 @@ public interface EventStore {
 
     void withEvents(EventFilters filters, Function<Stream<VersionedEvent>, Stream<Event>> projectionFunc);
 
-    void clear();
 }
