@@ -37,4 +37,14 @@ public abstract class JdbcConnectionProvider implements ConnectionProvider {
     }
 
     public static class Builder extends ImmutableJdbcConnectionProvider.Builder {}
+
+    public static Builder postgres(String host, int port, String database) {
+        String jdbcUrl = String.format("jdbc:postgresql://%s:%d/" + database,
+                host,
+                port
+        );
+
+        return JdbcConnectionProvider.builder()
+                .jdbcUrl(jdbcUrl);
+    }
 }
