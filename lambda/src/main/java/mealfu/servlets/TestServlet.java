@@ -10,9 +10,12 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import java.time.ZonedDateTime;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Path("/")
 public class TestServlet {
+
+    private static AtomicLong counter = new AtomicLong(0);
 
     @Path("test")
     @GET
@@ -37,6 +40,12 @@ public class TestServlet {
                 .count();
 
         return numEvents + " events";
+    }
+
+    @Path("static")
+    @GET
+    public long staticTest() {
+        return counter.getAndIncrement();
     }
 
     private String environmentVariable(String variableName) {
