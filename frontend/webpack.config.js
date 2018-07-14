@@ -15,7 +15,7 @@ module.exports = (env, originalArgv) => {
 
     return {
         mode,
-        entry: './src/index.ts',
+        entry: './src/index.tsx',
         module: {
             rules: [
                 {
