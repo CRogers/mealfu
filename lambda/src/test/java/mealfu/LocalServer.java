@@ -12,11 +12,12 @@ import org.glassfish.jersey.server.ResourceConfig;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class LocalServer {
     public static void main(String... args) throws IOException, InterruptedException {
-        int serverPort = Integer.valueOf(args[0]);
-
         DockerPort postgresPort = setupPostgres();
 
         Mealfu mealfu = Mealfu.builder()
@@ -34,7 +35,7 @@ public class LocalServer {
                 .register(CORSResponseFilter.allowEverything());
 
 
-        HttpServer httpServer = GrizzlyHttpServerFactory.createHttpServer(URI.create("http://localhost:" + serverPort), testConfig);
+        HttpServer httpServer = GrizzlyHttpServerFactory.createHttpServer(URI.create("http://localhost:" + serverPort()), testConfig);
 
         httpServer.start();
 
@@ -53,5 +54,13 @@ public class LocalServer {
         Runtime.getRuntime().addShutdownHook(new Thread(dockerComposeRule::after));
 
         return dockerComposeRule.containers().container("postgres").port(5432);
+    }
+
+    private static int serverPort() {
+        try {
+            return Integer.parseInt(new String(Files.readAllBytes(Paths.get("local-server-port")), StandardCharsets.UTF_8).trim());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
