@@ -31,7 +31,6 @@ public class PostgresEventStoreShould extends EventStoreShould {
                 try (Connection connection = connectionProviderForPort(container.port(PORT)).acquire()) {
                     connection.createStatement().executeQuery("select 1");
                 } catch (Exception e) {
-                    e.printStackTrace();
                     SuccessOrFailure.failureWithCondensedException("Could not connect to database", e);
                 }
                 return SuccessOrFailure.success();
