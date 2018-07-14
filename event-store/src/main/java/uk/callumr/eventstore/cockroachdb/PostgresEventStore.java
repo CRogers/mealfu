@@ -2,6 +2,7 @@ package uk.callumr.eventstore.cockroachdb;
 
 import com.evanlennick.retry4j.CallExecutor;
 import com.evanlennick.retry4j.config.RetryConfigBuilder;
+import com.google.common.base.Suppliers;
 import org.jooq.*;
 import org.jooq.conf.ParamType;
 import org.jooq.impl.DSL;
@@ -17,6 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class PostgresEventStore implements EventStore {
@@ -28,22 +30,28 @@ public class PostgresEventStore implements EventStore {
     private static final int MAX_TRIES = 10;
 
     private final Table<Record> eventsTable;
-    private final DSLContext jooq;
+    private final Supplier<DSLContext> jooq;
 
     public PostgresEventStore(ConnectionProvider connectionProvider, String schema) {
-        this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES);
+        DSLContext dslContext = DSL.using(connectionProvider, SQLDialect.POSTGRES);
+        this.jooq = Suppliers.memoize(() -> {
+            createTablesUnlessExists();
+            return dslContext;
+        });
         this.eventsTable = DSL.table(schema + ".events");
-
-        createTablesUnlessExists();
     }
 
-    public void createTablesUnlessExists() {
+    private DSLContext jooq() {
+        return jooq.get();
+    }
+
+    private void createTablesUnlessExists() {
         createEventsTable();
         createIndex();
     }
 
     private void createEventsTable() {
-        logSQL(jooq.createTableIfNotExists(eventsTable)
+        logSQL(jooq().createTableIfNotExists(eventsTable)
                 .column(VERSION)
                 .column(ENTITY_ID)
                 .column(EVENT_TYPE)
@@ -53,7 +61,7 @@ public class PostgresEventStore implements EventStore {
     }
 
     private void createIndex() {
-        logSQL(jooq.createIndexIfNotExists("entityId")
+        logSQL(jooq().createIndexIfNotExists("entityId")
                 .on(eventsTable, ENTITY_ID, VERSION))
                 .execute();
     }
@@ -130,7 +138,7 @@ public class PostgresEventStore implements EventStore {
     }
 
     private <R> R transactionResult(Function<DSLContext, R> func) {
-        return jooq.transactionResult(configuration -> {
+        return jooq().transactionResult(configuration -> {
             DSLContext dsl = DSL.using(configuration);
             logSQL(dsl.query("set transaction isolation level serializable")).execute();
             return func.apply(dsl);

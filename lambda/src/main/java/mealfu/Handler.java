@@ -13,7 +13,7 @@ import java.io.OutputStream;
 
 public class Handler implements RequestStreamHandler {
     private static final JerseyLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler
-            = JerseyLambdaContainerHandler.getAwsProxyHandler(Mealfu.init().prodJerseyApplication());
+            = JerseyLambdaContainerHandler.getAwsProxyHandler(Mealfu.configuredFromEnvironmentVariables().prodJerseyApplication());
 
 
     @Override

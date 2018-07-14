@@ -21,6 +21,7 @@ dependencies {
 
     testCompile (
             'org.glassfish.jersey.containers:jersey-container-grizzly2-http:2.26',
+            'com.palantir.docker.compose:docker-compose-rule-junit4:0.32.1',
     )
 }
 
