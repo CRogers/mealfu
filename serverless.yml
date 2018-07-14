@@ -21,7 +21,7 @@ provider:
   name: aws
   runtime: java8
   memorySize: 256
-  timeout: 45
+  timeout: 15
   vpc:
     securityGroupIds:
       - sg-0fbeac09135fb5e5d
