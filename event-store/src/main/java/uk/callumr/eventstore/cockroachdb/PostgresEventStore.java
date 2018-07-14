@@ -33,35 +33,27 @@ public class PostgresEventStore implements EventStore {
     private final Supplier<DSLContext> jooq;
 
     public PostgresEventStore(ConnectionProvider connectionProvider, String schema) {
+        this.eventsTable = DSL.table(schema + ".events");
         DSLContext dslContext = DSL.using(connectionProvider, SQLDialect.POSTGRES);
         this.jooq = Suppliers.memoize(() -> {
-            createTablesUnlessExists();
+            createTablesUnlessExists(eventsTable, dslContext);
             return dslContext;
         });
-        this.eventsTable = DSL.table(schema + ".events");
     }
 
     private DSLContext jooq() {
         return jooq.get();
     }
 
-    private void createTablesUnlessExists() {
-        createEventsTable();
-        createIndex();
-    }
-
-    private void createEventsTable() {
-        logSQL(jooq().createTableIfNotExists(eventsTable)
+    private static void createTablesUnlessExists(Table<Record> eventsTable, DSLContext dslContext) {
+        logSQL(dslContext.createTableIfNotExists(eventsTable)
                 .column(VERSION)
                 .column(ENTITY_ID)
                 .column(EVENT_TYPE)
                 .column(DATA)
                 .constraint(DSL.primaryKey(VERSION))).execute();
 
-    }
-
-    private void createIndex() {
-        logSQL(jooq().createIndexIfNotExists("entityId")
+        logSQL(dslContext.createIndexIfNotExists("entityId")
                 .on(eventsTable, ENTITY_ID, VERSION))
                 .execute();
     }
@@ -172,7 +164,7 @@ public class PostgresEventStore implements EventStore {
         };
     }
 
-    private <T extends Query> T logSQL(T query) {
+    private static <T extends Query> T logSQL(T query) {
         System.out.println(query.getSQL(ParamType.INLINED));
         return query;
     }
