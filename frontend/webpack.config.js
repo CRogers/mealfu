@@ -3,6 +3,8 @@ const fs = require('fs');
 const process = require('process');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
+const history = require('connect-history-api-fallback');
+const convert = require('koa-connect');
 
 const siteDir = path.resolve(__dirname, 'site');
 
@@ -47,7 +49,14 @@ module.exports = (env, originalArgv) => {
         ],
         serve: {
             open: true,
-            hot: true
+            hot: true,
+            add: (app, middleware, options) => {
+                const historyOptions = {
+                    index: '/'
+                };
+
+                app.use(convert(history(historyOptions)));
+            },
         }
     };
 }

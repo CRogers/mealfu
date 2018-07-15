@@ -6,11 +6,13 @@ import { ConnectedRouter, connectRouter, routerMiddleware } from 'connected-reac
 import createBrowserHistory from "history/createBrowserHistory";
 import { Route, Switch } from "react-router";
 import { Frontpage } from "./frontpage/frontpage";
+import createOidcMiddleware from "redux-oidc";
+import userManager from "./auth/userManager";
 
 declare const API_URL_BASE: string;
 declare const BROWSER_URL_BASENAME: string;
 
-const reducer = (state:  string) => state;
+const reducer = (state:  {}) => state;
 
 const history = createBrowserHistory({
     basename: BROWSER_URL_BASENAME
@@ -18,8 +20,9 @@ const history = createBrowserHistory({
 
 const store = createStore(
     connectRouter(history)(reducer),
-    'hi',
+    {},
     applyMiddleware(
+        createOidcMiddleware(userManager),
         routerMiddleware(history)
     )
 );
