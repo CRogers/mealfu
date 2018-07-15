@@ -7,7 +7,7 @@ import createBrowserHistory from "history/createBrowserHistory";
 import { Route, Switch } from "react-router";
 import { Frontpage } from "./frontpage/frontpage";
 
-declare const URL_BASE: string;
+declare const API_URL_BASE: string;
 
 const reducer = (state:  string) => state;
 
@@ -35,7 +35,7 @@ ReactDom.render(
     </Provider>,
     appContainer);
 
-fetch(URL_BASE + '/test', {
+fetch(API_URL_BASE + '/test', {
     method: 'GET',
 })
     .then(response => {

@@ -37,7 +37,7 @@ module.exports = (env, originalArgv) => {
                 title: 'Mealfu'
             }),
             new webpack.DefinePlugin({
-                URL_BASE: JSON.stringify(mode === 'production'
+                API_URL_BASE: JSON.stringify(mode === 'production'
                     ? 'https://q6zvj19zu3.execute-api.eu-west-2.amazonaws.com/dev'
                     : 'http://localhost:' + localServerPort)
             })
