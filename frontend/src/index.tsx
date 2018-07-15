@@ -8,6 +8,7 @@ import { Route, Switch } from "react-router";
 import { Frontpage } from "./frontpage/frontpage";
 import createOidcMiddleware from "redux-oidc";
 import userManager from "./auth/userManager";
+import { CallbackPage } from "./auth/oauth2Callback";
 
 declare const API_URL_BASE: string;
 declare const BROWSER_URL_BASENAME: string;
@@ -35,6 +36,7 @@ ReactDom.render(
         <ConnectedRouter history={history}>
             <Switch>
                 <Route exact path="/" render={() => <Frontpage />}/>
+                <Route exact path="/oauth2-callback" render={() => <CallbackPage />} />
                 <Route render={() => (<div>where?</div>)} />
             </Switch>
         </ConnectedRouter>
