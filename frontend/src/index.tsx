@@ -8,10 +8,13 @@ import { Route, Switch } from "react-router";
 import { Frontpage } from "./frontpage/frontpage";
 
 declare const API_URL_BASE: string;
+declare const BROWSER_URL_BASENAME: string;
 
 const reducer = (state:  string) => state;
 
-const history = createBrowserHistory();
+const history = createBrowserHistory({
+    basename: BROWSER_URL_BASENAME
+});
 
 const store = createStore(
     connectRouter(history)(reducer),

@@ -39,7 +39,10 @@ module.exports = (env, originalArgv) => {
             new webpack.DefinePlugin({
                 API_URL_BASE: JSON.stringify(mode === 'production'
                     ? 'https://q6zvj19zu3.execute-api.eu-west-2.amazonaws.com/dev'
-                    : 'http://localhost:' + localServerPort)
+                    : 'http://localhost:' + localServerPort),
+                BROWSER_URL_BASENAME: JSON.stringify(mode === 'production'
+                    ? '/mealfu-frontend'
+                    : '/')
             })
         ],
         serve: {
