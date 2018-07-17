@@ -31,7 +31,7 @@ provider:
       - subnet-3e02ce44
   region: eu-west-2
   environment:
-    AWS_ACCOUNT: 1234567890
+    AWS_ACCOUNT: 718181789372
     FUNCTION_ARNS: "arn:aws:lambda:${self:provider.region}:${self:provider.environment.AWS_ACCOUNT}:function:${self:service}-${self:provider.stage}-*"
 
 # you can overwrite defaults here
@@ -92,7 +92,7 @@ resources:
         AllowUnauthenticatedIdentities: false
         OpenIdConnectProviderARNs:
           # Create at https://console.aws.amazon.com/iam/home#/providers
-          - 'arn:aws:iam::718181789372:oidc-provider/accounts.google.com'
+          - 'arn:aws:iam::${self:provider.environment.AWS_ACCOUNT}:oidc-provider/accounts.google.com'
 
     CognitoAuthorizedRole:
       Type: "AWS::IAM::Role"
