@@ -88,7 +88,7 @@ resources:
     IdentityPool:
       Type: "AWS::Cognito::IdentityPool"
       Properties:
-        IdentityPoolName: $<self:service>-identity
+        IdentityPoolName: $<self:service>Identity
         AllowUnauthenticatedIdentities: false
         OpenIdConnectProviderARNs:
           # Create at https://console.aws.amazon.com/iam/home#/providers
