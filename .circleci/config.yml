@@ -20,7 +20,7 @@ jobs:
 
       - restore_cache:
           keys:
-          - v2-dependencies-{{ checksum "build.gradle" }}
+          - v2-dependencies-{{ checksum "build.gradle" }}-{{ checksum "backend/lambda/build.gradle" }}
           - v2-dependencies-
 
       - run: ./gradlew --no-daemon :backend:lambda:build
@@ -28,7 +28,7 @@ jobs:
       - save_cache:
           paths:
             - ~/.gradle
-          key: v2-dependencies-{{ checksum "build.gradle" }}
+          key: v2-dependencies-{{ checksum "build.gradle" }}-{{ checksum "backend/lambda/build.gradle" }}
 
       - persist_to_workspace:
           root: .
@@ -50,7 +50,7 @@ jobs:
 
       - restore_cache:
           keys:
-          - v2-dependencies-{{ checksum "build.gradle" }}-{{ checksum "event-store/build.gradle" }}
+          - v2-dependencies-{{ checksum "build.gradle" }}-{{ checksum "backend/event-store/build.gradle" }}
           - v2-dependencies-
 
       - run: ./gradlew --no-daemon --info :backend:event-store:test
@@ -58,7 +58,7 @@ jobs:
       - save_cache:
           paths:
             - ~/.gradle
-          key: v2-dependencies-{{ checksum "build.gradle" }}-{{ checksum "event-store/build.gradle" }}
+          key: v2-dependencies-{{ checksum "build.gradle" }}-{{ checksum "backend/event-store/build.gradle" }}
 
       - store_test_results:
           path: backend/event-store/build/test-results
