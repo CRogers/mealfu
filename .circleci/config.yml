@@ -158,6 +158,7 @@ workflows:
       - build-lambdas
       - deploy-lambdas:
           requires:
+            - test-event-store
             - build-lambdas
           filters:
             branches:
