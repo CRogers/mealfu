@@ -1,6 +1,6 @@
 skip-job-if-frontend-unchanged: &skip-job-if-frontend-unchanged
   run:
-    name: Checking whether this job can be skipped
+    name: Skipping job if nothing has changed since last build
     command: ../.circleci/skip-job-if-directory-unchanged.sh .
 
 version: 2
