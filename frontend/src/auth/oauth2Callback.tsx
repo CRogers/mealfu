@@ -2,7 +2,7 @@ import { CallbackComponent } from "redux-oidc";
 import { push } from "connected-react-router";
 import userManager from "./userManager";
 import * as React from "react";
-import { connect, DispatchProp, MapDispatchToProps } from "react-redux";
+import { connect, DispatchProp } from "react-redux";
 
 const FixedCallbackComponent = CallbackComponent as any;
 
