@@ -1,7 +1,7 @@
 skip-job-if-frontend-unchanged: &skip-job-if-frontend-unchanged
   run:
     name: Checking whether this job can be skipped
-    command: ./circleci/skip-job-if-directory-unchanged.sh frontend
+    command: ../circleci/skip-job-if-directory-unchanged.sh frontend
 
 version: 2
 jobs:
