@@ -1,4 +1,4 @@
 rootProject.name = 'mealfu'
 
-include 'event-store'
-include 'lambda'
+include ':backend:event-store'
+include ':backend:lambda'

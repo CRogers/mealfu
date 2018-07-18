@@ -2,7 +2,7 @@ apply from: "${rootProject.rootDir}/gradle/java.gradle"
 
 dependencies {
     compile (
-            project(':event-store'),
+            project(':backend:event-store'),
 
             'com.amazonaws:aws-lambda-java-core:1.1.0',
             'io.symphonia:lambda-logging:1.0.1',

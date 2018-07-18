@@ -23,7 +23,7 @@ jobs:
           - v2-dependencies-{{ checksum "build.gradle" }}
           - v2-dependencies-
 
-      - run: ./gradlew --no-daemon :lambda:build
+      - run: ./gradlew --no-daemon :backend:lambda:build
 
       - save_cache:
           paths:
@@ -33,7 +33,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - lambda/build/distributions
+            - backend/lambda/build/distributions
 
   test-event-store:
     machine:
@@ -53,7 +53,7 @@ jobs:
           - v2-dependencies-{{ checksum "build.gradle" }}-{{ checksum "event-store/build.gradle" }}
           - v2-dependencies-
 
-      - run: ./gradlew --no-daemon --info :event-store:test
+      - run: ./gradlew --no-daemon --info :backend:event-store:test
 
       - save_cache:
           paths:
@@ -61,19 +61,20 @@ jobs:
           key: v2-dependencies-{{ checksum "build.gradle" }}-{{ checksum "event-store/build.gradle" }}
 
       - store_test_results:
-          path: event-store/build/test-results
+          path: backend/event-store/build/test-results
 
   deploy-lambdas:
     docker:
       - image: circleci/node:10
 
-    working_directory: ~/repo
+    working_directory: ~/repo/backend
 
     environment:
       TERM: dumb
 
     steps:
-      - checkout
+      - checkout:
+          path: ~/repo
 
       - restore_cache:
           name: Restore Yarn Package Cache

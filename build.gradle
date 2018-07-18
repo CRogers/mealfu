@@ -3,6 +3,3 @@ plugins {
 }
 
 apply plugin: 'idea'
-
-
-
