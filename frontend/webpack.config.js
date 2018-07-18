@@ -24,6 +24,15 @@ module.exports = (env, originalArgv) => {
                     test: /\.tsx?$/,
                     use: 'ts-loader',
                     exclude: /node_modules/
+                },
+                {
+                    test: /\.html$/,
+                    use: [{
+                        loader: 'file-loader',
+                        options: {
+                            name: '[name].[ext]'
+                        }
+                    }]
                 }
             ]
         },
@@ -52,7 +61,10 @@ module.exports = (env, originalArgv) => {
             hot: true,
             add: (app, middleware, options) => {
                 const historyOptions = {
-                    index: '/'
+                    index: '/',
+                    rewrites: [
+                        { from: /^\/[^.]+$/, to: '/404.html' }
+                    ]
                 };
 
                 app.use(convert(history(historyOptions)));
