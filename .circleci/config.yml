@@ -153,45 +153,25 @@ jobs:
           name: Deploying Frontend
           command: ./scripts/deploy-gh-pages.sh
 
-deploy-lambdas-job-defaults: &deploy-lambdas-job-defaults
-  requires:
-    - build-lambdas
-    - test-event-store
-  filters:
-    branches:
-      only: master
-
-deploy-frontend-job-defaults: &deploy-frontend-job-defaults
-  requires:
-    - build-frontend
-  filters:
-    branches:
-      only: master
 
 workflows:
   version: 2
-
-  backend-only:
+  build-deploy:
     jobs:
       - test-event-store
       - build-lambdas
-      - *deploy-lambdas-job-defaults
-
-  frontend-only:
-    jobs:
-      - build-frontend
-      - deploy-frontend:
-          <<: *deploy-frontend-job-defaults
-
-  backend-and-frontend:
-    jobs:
-      - test-event-store
-      - build-lambdas
-      - *deploy-lambdas-job-defaults
-      - build-frontend
-      - deploy-frontend:
-          <<: *deploy-frontend-job-defaults
+      - deploy-lambdas:
           requires:
-            - deploy-lambdas
+            - build-lambdas
+          filters:
+            branches:
+              only: master
+      - build-frontend
+      - deploy-frontend:
+          requires:
             - build-frontend
+            - deploy-lambdas
+          filters:
+            branches:
+              only: master
 
