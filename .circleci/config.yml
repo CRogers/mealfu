@@ -1,7 +1,12 @@
 skip-job-if-frontend-unchanged: &skip-job-if-frontend-unchanged
   run:
     name: Skipping job if nothing has changed since last build
-    command: ../.circleci/skip-job-if-directory-unchanged.sh .
+    command: ../.circleci/skip-job-if-directory-unchanged.sh ~/repo/{.circleci,frontend}
+
+skip-job-if-backend-unchanged: &skip-job-if-frontend-unchanged
+  run:
+    name: Skipping job if nothing has changed since last build
+    command: ../.circleci/skip-job-if-directory-unchanged.sh ~/repo/{.circleci,backend,*.gradle,gradle*}
 
 version: 2
 jobs:
@@ -17,6 +22,8 @@ jobs:
 
     steps:
       - checkout
+
+      - *skip-job-if-backend-unchanged
 
       - restore_cache:
           keys:
@@ -48,6 +55,8 @@ jobs:
     steps:
       - checkout
 
+      - *skip-job-if-backend-unchanged
+
       - restore_cache:
           keys:
           - v2-dependencies-{{ checksum "build.gradle" }}-{{ checksum "backend/event-store/build.gradle" }}
@@ -75,6 +84,8 @@ jobs:
     steps:
       - checkout:
           path: ~/repo
+
+      - *skip-job-if-backend-unchanged
 
       - restore_cache:
           name: Restore Yarn Package Cache
