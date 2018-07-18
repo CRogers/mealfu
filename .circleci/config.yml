@@ -1,5 +1,3 @@
-stop-job-if
-
 version: 2
 jobs:
   build-lambdas:
