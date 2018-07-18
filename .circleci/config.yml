@@ -1,3 +1,8 @@
+skip-job-if-frontend-unchanged: &skip-job-if-frontend-unchanged
+  run:
+    name: Checking whether this job can be skipped
+    command: ./circleci/skip-job-if-directory-unchanged.sh frontend
+
 version: 2
 jobs:
   build-lambdas:
@@ -107,6 +112,8 @@ jobs:
       - checkout:
           path: ~/repo
 
+      - *skip-job-if-frontend-unchanged
+
       - restore_cache:
           name: Restore Yarn Package Cache
           keys:
@@ -141,6 +148,8 @@ jobs:
     steps:
       - checkout:
           path: ~/repo
+
+      - *skip-job-if-frontend-unchanged
 
       - attach_workspace:
           at: .
