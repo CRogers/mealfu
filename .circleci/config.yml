@@ -3,7 +3,7 @@ skip-job-if-frontend-unchanged: &skip-job-if-frontend-unchanged
     name: Skipping job if nothing has changed since last build
     command: ../.circleci/skip-job-if-directory-unchanged.sh ~/repo/{.circleci,frontend}
 
-skip-job-if-backend-unchanged: &skip-job-if-frontend-unchanged
+skip-job-if-backend-unchanged: &skip-job-if-backend-unchanged
   run:
     name: Skipping job if nothing has changed since last build
     command: ../.circleci/skip-job-if-directory-unchanged.sh ~/repo/{.circleci,backend,*.gradle,gradle*}
