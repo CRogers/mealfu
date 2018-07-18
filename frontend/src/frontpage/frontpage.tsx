@@ -10,7 +10,7 @@ export class Frontpage extends React.Component {
 
     public render() {
         return <div>
-            <h1>Mealfu</h1>
+            <h1>Mealfu!</h1>
             <button onClick={this.onLoginButtonClick}>Login with Google</button>
         </div>;
     }
