@@ -31,9 +31,9 @@ jobs:
           key: v2-dependencies-{{ checksum "build.gradle" }}-{{ checksum "backend/lambda/build.gradle" }}
 
       - persist_to_workspace:
-          root: .
+          root: backend
           paths:
-            - backend/lambda/build/distributions
+            - lambda/build/distributions
 
   test-event-store:
     machine:
