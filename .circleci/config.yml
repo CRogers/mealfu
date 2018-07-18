@@ -43,8 +43,6 @@ jobs:
     steps:
       - checkout
 
-      - run: circleci step halt
-
       - restore_cache:
           keys:
           - v2-dependencies-{{ checksum "build.gradle" }}-{{ checksum "event-store/build.gradle" }}
