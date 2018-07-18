@@ -10,7 +10,7 @@ import createOidcMiddleware from "redux-oidc";
 import userManager from "./auth/userManager";
 import { CallbackPage } from "./auth/oauth2Callback";
 import { API_URL_BASE, BROWSER_URL_BASENAME } from "./constants/buildConstants";
-import { handleGithubPagesSpaRedirect } from "./github-pages/gh-pages-spa-redirect";
+import { handleGithubPagesSpaRedirect } from "./github-pages/gh-pages-spa-redirect-handler";
 
 handleGithubPagesSpaRedirect();
 

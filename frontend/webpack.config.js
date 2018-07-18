@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const process = require('process');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
 const webpack = require('webpack');
 const history = require('connect-history-api-fallback');
 const convert = require('koa-connect');
@@ -17,22 +18,16 @@ module.exports = (env, originalArgv) => {
 
     return {
         mode,
-        entry: './src/index.tsx',
+        entry: {
+            'mealfu': './src/index.tsx',
+            '404': './src/github-pages/gh-pages-spa-redirect.ts',
+        },
         module: {
             rules: [
                 {
                     test: /\.tsx?$/,
                     use: 'ts-loader',
                     exclude: /node_modules/
-                },
-                {
-                    test: /\.html$/,
-                    use: [{
-                        loader: 'file-loader',
-                        options: {
-                            name: '[name].[ext]'
-                        }
-                    }]
                 }
             ]
         },
@@ -40,13 +35,21 @@ module.exports = (env, originalArgv) => {
             extensions: ['.tsx', '.ts', '.js']
         },
         output: {
-            filename: 'mealfu.js',
+            filename: '[name].js',
             path: siteDir,
         },
         plugins: [
             new HtmlWebpackPlugin({
-                title: 'Mealfu'
+                title: 'Mealfu',
+                chunks: ['mealfu'],
             }),
+            new HtmlWebpackPlugin({
+                title: 'Mealfu Github Pages SPA Redirect',
+                chunks: ['404'],
+                filename: '404.html',
+                inlineSource: '.js$'
+            }),
+            new HtmlWebpackInlineSourcePlugin(),
             new webpack.DefinePlugin({
                 WEBPACK_DEFINED_API_URL_BASE: JSON.stringify(mode === 'production'
                     ? 'https://q6zvj19zu3.execute-api.eu-west-2.amazonaws.com/dev'
