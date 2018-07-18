@@ -9,9 +9,7 @@ import { Frontpage } from "./frontpage/frontpage";
 import createOidcMiddleware from "redux-oidc";
 import userManager from "./auth/userManager";
 import { CallbackPage } from "./auth/oauth2Callback";
-
-declare const API_URL_BASE: string;
-declare const BROWSER_URL_BASENAME: string;
+import { API_URL_BASE, BROWSER_URL_BASENAME } from "./constants/buildConstants";
 
 const reducer = (state:  {}) => state;
 
