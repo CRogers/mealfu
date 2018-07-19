@@ -18,6 +18,15 @@ import java.nio.file.Paths;
 
 public class LocalServer {
     public static void main(String... args) throws IOException, InterruptedException {
+        try {
+            realMain();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    private static void realMain() throws IOException, InterruptedException {
         DockerPort postgresPort = setupPostgres();
 
         Mealfu mealfu = Mealfu.builder()
