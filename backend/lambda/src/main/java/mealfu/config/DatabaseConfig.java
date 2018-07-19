@@ -2,7 +2,7 @@ package mealfu.config;
 
 import org.immutables.value.Value;
 
-import java.util.Optional;
+import static mealfu.config.ConfigUtils.environmentVariable;
 
 @Value.Immutable
 public abstract class DatabaseConfig {
@@ -37,8 +37,4 @@ public abstract class DatabaseConfig {
                 .build();
     }
 
-    private static String environmentVariable(String variableName) {
-        return Optional.ofNullable(System.getenv(variableName))
-                .orElseThrow(() -> new IllegalStateException(variableName + " environment variable not set!"));
-    }
 }

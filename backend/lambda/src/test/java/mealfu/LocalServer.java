@@ -4,6 +4,7 @@ import com.palantir.docker.compose.DockerComposeRule;
 import com.palantir.docker.compose.configuration.ProjectName;
 import com.palantir.docker.compose.configuration.ShutdownStrategy;
 import com.palantir.docker.compose.connection.DockerPort;
+import mealfu.config.AuthConfig;
 import mealfu.config.DatabaseConfig;
 import mealfu.jersey.CORSResponseFilter;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -38,6 +39,7 @@ public class LocalServer {
                         .password("password")
                         .schema("postgres")
                         .build())
+                .authConfig(AuthConfig.fromEnvironmentVariables())
                 .build();
 
         ResourceConfig testConfig = new ResourceConfig(mealfu.exposed_for_testing_commonJerseyApplication())

@@ -1,5 +1,6 @@
 package mealfu;
 
+import mealfu.config.AuthConfig;
 import mealfu.config.DatabaseConfig;
 import mealfu.jersey.CORSResponseFilter;
 import mealfu.testing.TestService;
@@ -12,6 +13,7 @@ import uk.callumr.eventstore.cockroachdb.PostgresEventStore;
 @Value.Immutable
 public abstract class Mealfu {
     protected abstract DatabaseConfig databaseConfig();
+    protected abstract AuthConfig authConfig();
 
     @Value.Lazy
     protected EventStore eventStore() {
@@ -56,6 +58,7 @@ public abstract class Mealfu {
     public static Mealfu configuredFromEnvironmentVariables() {
         return builder()
                 .databaseConfig(DatabaseConfig.fromEnvironmentVariables())
+                .authConfig(AuthConfig.fromEnvironmentVariables())
                 .build();
     }
 }
