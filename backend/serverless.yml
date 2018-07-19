@@ -78,69 +78,7 @@ functions:
           method: any
           cors: true
           integration: lambda-proxy
-          authorizer: aws_iam
 
-
-# you can add CloudFormation resource templates here
-resources:
-  Resources:
-    # https://forum.serverless.com/t/cognito-user-identity-pools-as-serverless-yml-resource-defs/2050/14
-    IdentityPool:
-      Type: "AWS::Cognito::IdentityPool"
-      Properties:
-        IdentityPoolName: "${self:service}IdentityPool"
-        AllowUnauthenticatedIdentities: false
-        OpenIdConnectProviderARNs:
-          # Create at https://console.aws.amazon.com/iam/home#/providers
-          - 'arn:aws:iam::${self:provider.environment.AWS_ACCOUNT}:oidc-provider/accounts.google.com'
-
-    CognitoAuthorizedRole:
-      Type: "AWS::IAM::Role"
-      Properties:
-        AssumeRolePolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Principal:
-                Federated: "cognito-identity.amazonaws.com"
-              Action:
-                - "sts:AssumeRoleWithWebIdentity"
-              Condition:
-                StringEquals:
-                  "cognito-identity.amazonaws.com:aud":
-                    Ref: IdentityPool
-                "ForAnyValue:StringLike":
-                  "cognito-identity.amazonaws.com:amr": authenticated
-        Policies:
-          - PolicyName: "CognitoAuthorizedPolicy"
-            PolicyDocument:
-              Version: "2012-10-17"
-              Statement:
-                - Effect: "Allow"
-                  Action:
-                    - "mobileanalytics:PutEvents"
-                    - "cognito-sync:*"
-                    - "cognito-identity:*"
-                  Resource: "*"
-                - Effect: "Allow"
-                  Action:
-                    - "lambda:InvokeFunction"
-                  Resource: "${self:provider.environment.FUNCTION_ARNS}"
-
-    IdentityPoolRoleMapping:
-      Type: "AWS::Cognito::IdentityPoolRoleAttachment"
-      Properties:
-        IdentityPoolId:
-          Ref: IdentityPool
-        Roles:
-          authenticated:
-              'Fn::GetAtt': [ CognitoAuthorizedRole, Arn ]
-  Outputs:
-     IdentityPoolId:
-       Value:
-         Ref: IdentityPool
-       Export:
-         Name: "IdentityPool::Id"
 
 plugins:
   - serverless-prune-plugin
