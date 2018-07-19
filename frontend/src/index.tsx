@@ -44,9 +44,15 @@ ReactDom.render(
     </Provider>,
     appContainer);
 
-fetch(API_URL_BASE + '/test', {
-    method: 'GET',
-})
+userManager.getUser()
+    .then(user => {
+        return fetch(API_URL_BASE + '/test', {
+            method: 'GET',
+            headers: {
+                Authorization: `${user.token_type} ${user.id_token}`
+            }
+        })  
+    })
     .then(response => {
         return response.text();})
     .then(text => {
