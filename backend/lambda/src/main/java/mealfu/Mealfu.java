@@ -1,6 +1,7 @@
 package mealfu;
 
-import mealfu.config.AuthConfig;
+import mealfu.auth.UserAuthorizer;
+import mealfu.auth.config.AuthConfig;
 import mealfu.config.DatabaseConfig;
 import mealfu.jersey.CORSResponseFilter;
 import mealfu.testing.TestService;
@@ -14,6 +15,11 @@ import uk.callumr.eventstore.cockroachdb.PostgresEventStore;
 public abstract class Mealfu {
     protected abstract DatabaseConfig databaseConfig();
     protected abstract AuthConfig authConfig();
+
+    @Value.Lazy
+    protected UserAuthorizer userAuthorizer() {
+        return new UserAuthorizer(authConfig());
+    }
 
     @Value.Lazy
     protected EventStore eventStore() {
@@ -30,7 +36,7 @@ public abstract class Mealfu {
 
     @Value.Lazy
     protected TestService testService() {
-        return new TestService(eventStore());
+        return new TestService(eventStore(), userAuthorizer());
     }
 
     /**
@@ -55,10 +61,8 @@ public abstract class Mealfu {
         return new Builder();
     }
 
-    public static Mealfu configuredFromEnvironmentVariables() {
+    public static Builder configuredFromEnvironmentVariables() {
         return builder()
-                .databaseConfig(DatabaseConfig.fromEnvironmentVariables())
-                .authConfig(AuthConfig.fromEnvironmentVariables())
-                .build();
+                .databaseConfig(DatabaseConfig.fromEnvironmentVariables());
     }
 }

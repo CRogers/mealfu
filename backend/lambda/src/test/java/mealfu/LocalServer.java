@@ -4,7 +4,6 @@ import com.palantir.docker.compose.DockerComposeRule;
 import com.palantir.docker.compose.configuration.ProjectName;
 import com.palantir.docker.compose.configuration.ShutdownStrategy;
 import com.palantir.docker.compose.connection.DockerPort;
-import mealfu.config.AuthConfig;
 import mealfu.config.DatabaseConfig;
 import mealfu.jersey.CORSResponseFilter;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -16,6 +15,8 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
+import static mealfu.auth.config.ProdAuthConfig.PROD_AUTH_CONFIG;
 
 public class LocalServer {
     public static void main(String... args) throws IOException, InterruptedException {
@@ -39,7 +40,7 @@ public class LocalServer {
                         .password("password")
                         .schema("postgres")
                         .build())
-                .authConfig(AuthConfig.fromEnvironmentVariables())
+                .authConfig(PROD_AUTH_CONFIG)
                 .build();
 
         ResourceConfig testConfig = new ResourceConfig(mealfu.exposed_for_testing_commonJerseyApplication())

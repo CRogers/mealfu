@@ -5,6 +5,7 @@ import com.amazonaws.serverless.proxy.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.model.AwsProxyResponse;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
+import mealfu.auth.config.ProdAuthConfig;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
@@ -13,7 +14,11 @@ import java.io.OutputStream;
 
 public class Handler implements RequestStreamHandler {
     private static final JerseyLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler
-            = JerseyLambdaContainerHandler.getAwsProxyHandler(Mealfu.configuredFromEnvironmentVariables().prodJerseyApplication());
+            = JerseyLambdaContainerHandler.getAwsProxyHandler(
+                    Mealfu.configuredFromEnvironmentVariables()
+                            .authConfig(ProdAuthConfig.PROD_AUTH_CONFIG)
+                            .build()
+                    .prodJerseyApplication());
 
 
     @Override

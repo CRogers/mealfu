@@ -49,7 +49,7 @@ userManager.getUser()
         return fetch(API_URL_BASE + '/test', {
             method: 'GET',
             headers: {
-                Authorization: `${user.token_type} ${user.id_token}`
+                Authorization: `${user.id_token}`
             }
         })  
     })
