@@ -3,6 +3,7 @@ package mealfu;
 import mealfu.auth.UserAuthorizer;
 import mealfu.auth.config.AuthConfig;
 import mealfu.config.DatabaseConfig;
+import mealfu.jersey.AuthFilter;
 import mealfu.jersey.CORSResponseFilter;
 import mealfu.testing.TestService;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -46,6 +47,7 @@ public abstract class Mealfu {
     @Deprecated
     public ResourceConfig exposed_for_testing_commonJerseyApplication() {
         return new ResourceConfig()
+                .register(new AuthFilter(userAuthorizer()))
                 .register(testService());
     }
 

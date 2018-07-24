@@ -1,12 +1,12 @@
 package mealfu.testing;
 
-import mealfu.auth.AuthHeader;
 import mealfu.auth.UserAuthorizer;
 import uk.callumr.eventstore.EventStore;
 import uk.callumr.eventstore.core.EntityId;
 import uk.callumr.eventstore.core.EventFilters;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 import java.time.ZonedDateTime;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -25,8 +25,7 @@ public class TestService {
 
     @Path("test")
     @GET
-    public String test(@HeaderParam("Authorization") AuthHeader authHeader) {
-        userAuthorizer.verifyUser(authHeader);
+    public String test() {
         return "The current time is " + ZonedDateTime.now().toString();
     }
 

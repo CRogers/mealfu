@@ -25,7 +25,7 @@ public class OAuth2Verifier {
                 .build();
     }
 
-    public void verify(AuthHeader authHeader) {
+    public void verify(AuthHeader authHeader) throws AuthHeaderVerificationException {
         try {
             DecodedJWT decodedJWT = JWT.decode(authHeader.bearerToken());
             System.out.println("decodedJWT = " + decodedJWT.getAudience());
@@ -36,8 +36,7 @@ public class OAuth2Verifier {
                     .build();
             jwtVerifier.verify(authHeader.bearerToken());
         } catch (JWTVerificationException | JwkException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new AuthHeaderVerificationException(e);
         }
     }
 }

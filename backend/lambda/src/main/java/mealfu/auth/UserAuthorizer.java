@@ -18,7 +18,7 @@ public class UserAuthorizer {
                 .collect(Collectors.toMap(OAuth2ProviderConfig::audience, OAuth2Verifier::new));
     }
 
-    public void verifyUser(AuthHeader authHeader) {
+    public void verifyUser(AuthHeader authHeader) throws AuthHeaderVerificationException {
         DecodedJWT decodedJWT = JWT.decode(authHeader.bearerToken());
         OAuth2Verifier jwk = forAudienceAndKey(Audience.of(decodedJWT.getAudience().get(0)));
         jwk.verify(authHeader);
