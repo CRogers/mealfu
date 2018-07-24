@@ -1,11 +1,16 @@
 package mealfu.jersey;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.MultivaluedMap;
 
 public class CORSResponseFilter implements ContainerResponseFilter {
+    private static final Logger log = LoggerFactory.getLogger(CORSResponseFilter.class);
+
     private final String origin;
 
     private CORSResponseFilter(String origin) {
@@ -21,6 +26,7 @@ public class CORSResponseFilter implements ContainerResponseFilter {
     }
 
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
+        log.info(requestContext.getHeaders().toString());
 
         MultivaluedMap<String, Object> headers = responseContext.getHeaders();
 
