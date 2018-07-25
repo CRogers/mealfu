@@ -10,6 +10,7 @@ import javax.ws.rs.core.MultivaluedMap;
 
 public class CORSResponseFilter implements ContainerResponseFilter {
     private static final Logger log = LoggerFactory.getLogger(CORSResponseFilter.class);
+    private static final int ONE_MINUTE_IN_SECONDS = 60 * 60;
 
     private final String origin;
 
@@ -26,13 +27,12 @@ public class CORSResponseFilter implements ContainerResponseFilter {
     }
 
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
-        log.info(requestContext.getHeaders().toString());
-
         MultivaluedMap<String, Object> headers = responseContext.getHeaders();
 
         headers.add("Access-Control-Allow-Origin", origin);
         headers.add("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT");
         headers.add("Access-Control-Allow-Headers", "Authorization");
+        headers.add("Access-Control-Max-Age", ONE_MINUTE_IN_SECONDS);
     }
 
 }
