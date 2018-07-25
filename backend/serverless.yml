@@ -30,9 +30,6 @@ provider:
       - subnet-bc3624f1
       - subnet-3e02ce44
   region: eu-west-2
-  environment:
-    AWS_ACCOUNT: 718181789372
-    FUNCTION_ARNS: "arn:aws:lambda:${self:provider.region}:${self:provider.environment.AWS_ACCOUNT}:function:${self:service}-${self:provider.stage}-*"
 
 # you can overwrite defaults here
 #  stage: dev
