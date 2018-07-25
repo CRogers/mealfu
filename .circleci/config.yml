@@ -55,7 +55,9 @@ jobs:
     steps:
       - checkout
 
-      - *skip-job-if-backend-unchanged
+      - run:
+          name: Skipping job if nothing has changed since last build
+          command: ~/repo/.circleci/skip-job-if-directory-unchanged.sh ~/repo/{.circleci,backend/event-store,*.gradle,gradle*}
 
       - restore_cache:
           keys:
