@@ -76,7 +76,7 @@ jobs:
 
   deploy-lambdas:
     docker:
-      - image: circleci/node:10
+      - image: circleci/node:8 # 8 until https://github.com/serverless/serverless/pull/5134 is released
 
     working_directory: ~/repo/backend
 
