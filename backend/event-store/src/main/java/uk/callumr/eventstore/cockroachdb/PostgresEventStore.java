@@ -4,10 +4,11 @@ import com.evanlennick.retry4j.CallExecutor;
 import com.evanlennick.retry4j.config.RetryConfigBuilder;
 import com.google.common.base.Suppliers;
 import org.jooq.*;
-import org.jooq.conf.ParamType;
 import org.jooq.impl.DSL;
 import org.jooq.impl.DefaultDataType;
 import org.jooq.impl.SQLDataType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.callumr.eventstore.EventStore;
 import uk.callumr.eventstore.core.*;
 import uk.callumr.eventstore.jooq.JooqUtils;
@@ -22,6 +23,8 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class PostgresEventStore implements EventStore {
+    private static final Logger log = LoggerFactory.getLogger(PostgresEventStore.class);
+
     private static final DataType<Long> SERIAL = new DefaultDataType<>(SQLDialect.POSTGRES, Long.class, "serial").nullable(false);
     private static final Field<Long> VERSION = DSL.field("version", SERIAL);
     private static final Field<String> ENTITY_ID = DSL.field("entityId", SQLDataType.VARCHAR.nullable(false));
@@ -87,7 +90,7 @@ public class PostgresEventStore implements EventStore {
                 .build())
                 .execute(() -> {
                     int addedRows = withEventsInner(condition, projectionFunc);
-                    System.out.println("addedRows = " + addedRows);
+                    log.debug("addedRows = {}", addedRows);
                     return addedRows;
                 });
     }
@@ -165,7 +168,7 @@ public class PostgresEventStore implements EventStore {
     }
 
     private static <T extends Query> T logSQL(T query) {
-        System.out.println(query.getSQL(ParamType.INLINED));
+//        log.debug(query.getSQL(ParamType.INLINED));
         return query;
     }
 
