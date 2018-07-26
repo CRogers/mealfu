@@ -183,8 +183,7 @@ public class PostgresEventStore implements EventStore {
 
         return EventFilter.caseOf(eventFilter)
                 .forEntity(entityId -> ENTITY_ID.equal(entityId.asString()))
-                .ofType(eventType -> EVENT_TYPE.equal(eventType.asString()))
-                .all(DSL::trueCondition);
+                .ofType(eventType -> EVENT_TYPE.equal(eventType.asString()));
     }
 
     private VersionedEvent toVersionedEvent(Record4<Long, String, String, String> record) {
