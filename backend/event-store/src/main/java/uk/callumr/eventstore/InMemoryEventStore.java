@@ -6,10 +6,7 @@ import uk.callumr.eventstore.core.*;
 import uk.callumr.eventstore.inmemory.EasyReadWriteLock;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -23,8 +20,8 @@ public class InMemoryEventStore implements EventStore {
     private final EasyReadWriteLock lock = new EasyReadWriteLock();
 
     @Override
-    public void addEvents(Event event) {
-        lock.write_(() -> addEventUnlocked(event));
+    public void addEvents(Event... events) {
+        lock.write_(() -> Arrays.stream(events).forEach(this::addEventUnlocked));
     }
 
     @Override

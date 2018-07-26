@@ -14,6 +14,7 @@ import uk.callumr.eventstore.core.*;
 import uk.callumr.eventstore.jooq.JooqUtils;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BinaryOperator;
@@ -62,8 +63,8 @@ public class PostgresEventStore implements EventStore {
     }
 
     @Override
-    public void addEvents(Event event) {
-        transaction(dsl -> insertEvents(dsl, Stream.of(event)));
+    public void addEvents(Event... events) {
+        transaction(dsl -> insertEvents(dsl, Arrays.stream(events)));
     }
 
     @Override
