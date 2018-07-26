@@ -79,21 +79,6 @@ public abstract class EventStoreShould {
     }
 
     @Test
-    public void get_events_with_filter_for_all_should_return_all_events() {
-        Event event1 = Event.of(JAMES, EVENT_TYPE, EVENT_DATA);
-        Event event2 = Event.of(JAMES, OTHER_EVENT_TYPE, EVENT_DATA);
-        Event event3 = Event.of(ALEX, EVENT_TYPE, EVENT_DATA);
-
-        eventStore.addEvent(event1);
-        eventStore.addEvent(event2);
-        eventStore.addEvent(event3);
-
-        Stream<VersionedEvent> events = eventStore.events(all());
-
-        assertThatSteamContainsEvents(events, event1, event2, event3);
-    }
-
-    @Test
     public void reprojection_should_return_events_then_persist_new_events() {
         Event event1 = Event.of(JAMES, EVENT_TYPE, EVENT_DATA);
         Event event2 = Event.of(JAMES, EVENT_TYPE, OTHER_EVENT_DATA);
