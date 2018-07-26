@@ -15,7 +15,8 @@ public class User {
         RecipeId recipeId = RecipeId.random();
 
         eventStore.addEvents(
-                RecipeCreatedByUser.withId(recipeId).by(userId));
+                RecipeCreatedByUser.withId(recipeId).forEntity(userId),
+                RecipeCreated.withName(recipeName).forEntity(recipeId));
 
         return recipeId;
     }
