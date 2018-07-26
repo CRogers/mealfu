@@ -23,7 +23,7 @@ public class InMemoryEventStore implements EventStore {
     private final EasyReadWriteLock lock = new EasyReadWriteLock();
 
     @Override
-    public void addEvent(Event event) {
+    public void addEvents(Event event) {
         lock.write_(() -> addEventUnlocked(event));
     }
 
@@ -59,7 +59,7 @@ public class InMemoryEventStore implements EventStore {
                             throw new ConcurrentModificationException();
                         }
 
-                        newEvents.forEach(this::addEvent);
+                        newEvents.forEach(this::addEvents);
                     });
 
                     return null;

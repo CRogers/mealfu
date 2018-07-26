@@ -8,7 +8,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 public interface EventStore {
-    void addEvent(Event event);
+    void addEvents(Event event);
 
     Stream<VersionedEvent> events(EventFilters filters);
 

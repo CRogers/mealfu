@@ -27,7 +27,7 @@ public abstract class EventStoreShould {
     @Test
     public void return_an_event_given_one_was_inserted_for_a_given_entity_id() {
         Event event = EVENT_TYPE.newEvent(JAMES, EVENT_DATA);
-        eventStore.addEvent(event);
+        eventStore.addEvents(event);
 
         Stream<VersionedEvent> events = eventStore.events(forEntity(JAMES));
 
@@ -39,8 +39,8 @@ public abstract class EventStoreShould {
         Event jamesEvent1 = EVENT_TYPE.newEvent(JAMES, EVENT_DATA);
         Event jamesEvent2 = EVENT_TYPE.newEvent(JAMES, OTHER_EVENT_DATA);
 
-        eventStore.addEvent(jamesEvent1);
-        eventStore.addEvent(jamesEvent2);
+        eventStore.addEvents(jamesEvent1);
+        eventStore.addEvents(jamesEvent2);
 
         Stream<VersionedEvent> events = eventStore.events(forEntity(JAMES));
 
@@ -54,8 +54,8 @@ public abstract class EventStoreShould {
         Event jamesEvent = Event.of(JAMES, EVENT_TYPE, EVENT_DATA);
         Event alexEvent = Event.of(ALEX, EVENT_TYPE, EVENT_DATA);
 
-        eventStore.addEvent(jamesEvent);
-        eventStore.addEvent(alexEvent);
+        eventStore.addEvents(jamesEvent);
+        eventStore.addEvents(alexEvent);
 
         Stream<VersionedEvent> events = eventStore.events(forEntity(JAMES));
 
@@ -67,8 +67,8 @@ public abstract class EventStoreShould {
         Event someEvent = Event.of(JAMES, EVENT_TYPE, EVENT_DATA);
         Event otherEvent = Event.of(JAMES, OTHER_EVENT_TYPE, EVENT_DATA);
 
-        eventStore.addEvent(someEvent);
-        eventStore.addEvent(otherEvent);
+        eventStore.addEvents(someEvent);
+        eventStore.addEvents(otherEvent);
 
         Stream<VersionedEvent> events = eventStore.events(ofType(EVENT_TYPE));
 
@@ -81,9 +81,9 @@ public abstract class EventStoreShould {
         Event event2 = Event.of(JAMES, EVENT_TYPE, OTHER_EVENT_DATA);
         Event event3 = Event.of(ALEX, EVENT_TYPE, EVENT_DATA);
 
-        eventStore.addEvent(event1);
-        eventStore.addEvent(event2);
-        eventStore.addEvent(event3);
+        eventStore.addEvents(event1);
+        eventStore.addEvents(event2);
+        eventStore.addEvents(event3);
 
         Event event4 = Event.of(ALEX, OTHER_EVENT_TYPE, OTHER_EVENT_DATA);
 
@@ -103,14 +103,14 @@ public abstract class EventStoreShould {
         Event event1 = Event.of(JAMES, EVENT_TYPE, EVENT_DATA);
         Event event2 = Event.of(JAMES, OTHER_EVENT_TYPE, EVENT_DATA);
 
-        eventStore.addEvent(event1);
+        eventStore.addEvents(event1);
 
         AtomicBoolean runOnce = new AtomicBoolean(false);
 
         eventStore.withEvents(forEntity(JAMES), events -> {
             long count = events.count();
             if (!runOnce.get()) {
-                eventStore.addEvent(event2);
+                eventStore.addEvents(event2);
                 runOnce.set(true);
             }
             return Stream.of(Event.of(ALEX, EVENT_TYPE, Long.toString(count)));

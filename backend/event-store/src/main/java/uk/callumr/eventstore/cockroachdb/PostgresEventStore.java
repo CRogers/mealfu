@@ -62,7 +62,7 @@ public class PostgresEventStore implements EventStore {
     }
 
     @Override
-    public void addEvent(Event event) {
+    public void addEvents(Event event) {
         transaction(dsl -> insertEvents(dsl, Stream.of(event)));
     }
 
