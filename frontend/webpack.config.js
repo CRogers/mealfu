@@ -9,7 +9,7 @@ const convert = require('koa-connect');
 
 const siteDir = path.resolve(__dirname, 'site');
 
-const localServerPort = fs.readFileSync('../local-server-port', { encoding: 'utf8' }).trim();
+const localServerPort = fs.readFileSync(__dirname + '/../local-server-port', { encoding: 'utf8' }).trim();
 
 module.exports = (env, originalArgv) => {
     const argv = originalArgv || {};
