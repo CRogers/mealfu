@@ -11,7 +11,12 @@ public class User {
         this.eventStore = eventStore;
     }
 
-//    public RecipeId createRecipe(RecipeName recipeName) {
-//        eventStore.withEvents(forEntity(EntityId.of()));
-//    }
+    public RecipeId createRecipe(RecipeName recipeName) {
+        RecipeId recipeId = RecipeId.random();
+
+        eventStore.addEvent(
+                RecipeCreatedByUser.withId(recipeId).by(userId));
+
+        return recipeId;
+    }
 }
