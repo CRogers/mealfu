@@ -190,7 +190,7 @@ public class PostgresEventStore implements EventStore {
         return VersionedEvent.builder()
                 .version(record.component1())
                 .event(BasicEvent.builder()
-                        .entityId(EntityId.of(record.component2()))
+                        .entityId(BasicEntityId.of(record.component2()))
                         .eventType(EventType.of(record.component3()))
                         .data(record.component4())
                         .build())

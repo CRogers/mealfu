@@ -12,6 +12,6 @@ public class User {
     }
 
 //    public RecipeId createRecipe(RecipeName recipeName) {
-//        eventStore.withEvents(EventFilters.forEntity(EntityId.of()));
+//        eventStore.withEvents(forEntity(EntityId.of()));
 //    }
 }

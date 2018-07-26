@@ -1,19 +1,24 @@
 package mealfu.user;
 
+import mealfu.ids.MealfuEntityId;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface UserId {
-    String asString();
+public abstract class UserId extends MealfuEntityId {
 
-    class Builder extends ImmutableUserId.Builder { }
-
-    static Builder builder() {
-        return new Builder();
+    @Override
+    protected String entityType() {
+        return "user";
+    }
+    
+    static UserId of(String id) {
+        return ImmutableUserId.builder()
+                .identifier(id)
+                .build();
     }
 
-    static UserId of(String userId) {
-        return builder().asString(userId).build();
+    static UserId random() {
+        return random(UserId::of);
     }
 }
 

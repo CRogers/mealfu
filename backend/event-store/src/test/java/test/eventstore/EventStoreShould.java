@@ -2,10 +2,7 @@ package test.eventstore;
 
 import org.junit.Test;
 import uk.callumr.eventstore.EventStore;
-import uk.callumr.eventstore.core.EntityId;
-import uk.callumr.eventstore.core.Event;
-import uk.callumr.eventstore.core.EventType;
-import uk.callumr.eventstore.core.VersionedEvent;
+import uk.callumr.eventstore.core.*;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
@@ -14,8 +11,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static uk.callumr.eventstore.core.EventFilters.*;
 
 public abstract class EventStoreShould {
-    private static final EntityId JAMES = EntityId.of("james");
-    private static final EntityId ALEX = EntityId.of("alex");
+    private static final BasicEntityId JAMES = BasicEntityId.of("james");
+    private static final BasicEntityId ALEX = BasicEntityId.of("alex");
     private static final EventType EVENT_TYPE = EventType.of("eventType");
     private static final EventType OTHER_EVENT_TYPE = EventType.of("otherEventType");
     private static final String EVENT_DATA = "eventData";
