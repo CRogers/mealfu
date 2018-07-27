@@ -3,6 +3,7 @@ package mealfu.events;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mealfu.ids.MealfuEntityId;
 import uk.callumr.eventstore.EventStore;
+import uk.callumr.eventstore.core.Event;
 import uk.callumr.eventstore.core.EventFilters;
 
 import java.io.IOException;
@@ -18,11 +19,18 @@ public class MealfuEventStore {
     public <TEvent> Stream<TEvent> events(MealfuEntityId<TEvent> id) {
         return eventStore.events(EventFilters.forEntity(id))
                 .map(versionedEvent -> {
+                    Event event = versionedEvent.event();
                     try {
-                        return new ObjectMapper().readValue(versionedEvent.event().data(), id.eventClass());
+                        return new ObjectMapper().readValue(
+                                event.data(),
+                                id.eventClassFor(event.eventType()));
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
                 });
+    }
+
+    public void addEvents(MealfuEvent<?>... events) {
+        
     }
 }

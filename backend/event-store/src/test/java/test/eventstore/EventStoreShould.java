@@ -13,8 +13,8 @@ import static uk.callumr.eventstore.core.EventFilters.*;
 public abstract class EventStoreShould {
     private static final BasicEntityId JAMES = BasicEntityId.of("james");
     private static final BasicEntityId ALEX = BasicEntityId.of("alex");
-    private static final EventType EVENT_TYPE = EventType.of("eventType");
-    private static final EventType OTHER_EVENT_TYPE = EventType.of("otherEventType");
+    private static final BasicEventType EVENT_TYPE = BasicEventType.of("eventType");
+    private static final BasicEventType OTHER_EVENT_TYPE = BasicEventType.of("otherEventType");
     private static final String EVENT_DATA = "eventData";
     private static final String OTHER_EVENT_DATA = "other eventData";
 

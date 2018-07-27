@@ -1,16 +1,16 @@
 package mealfu.user;
 import mealfu.events.MealfuEvent;
 import org.immutables.value.Value;
-import uk.callumr.eventstore.core.EventType;
+import uk.callumr.eventstore.core.BasicEventType;
 
 @Value.Immutable
 public interface RecipeCreated extends MealfuEvent<RecipeId> {
-    EventType TYPE = EventType.of("recipe-created");
+    BasicEventType TYPE = BasicEventType.of("recipe-created");
 
     RecipeName recipeName();
     UserId creator();
 
-    default EventType eventType() {
+    default BasicEventType eventType() {
         return TYPE;
     }
 

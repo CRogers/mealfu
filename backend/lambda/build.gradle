@@ -15,10 +15,13 @@ dependencies {
             'org.glassfish.jersey.inject:jersey-hk2:2.26',
             'com.auth0:java-jwt:3.4.0',
             'com.auth0:jwks-rsa:0.6.0',
+            'com.google.auto.service:auto-service:1.0-rc4',
+
     )
 
     processor (
             'org.immutables:value:2.5.3',
+            'org.derive4j:derive4j:0.12.4'
     )
 
     testCompile (

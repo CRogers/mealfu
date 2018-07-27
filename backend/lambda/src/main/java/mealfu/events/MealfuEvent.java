@@ -5,15 +5,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import mealfu.ids.MealfuEntityId;
+import uk.callumr.eventstore.core.BasicEventType;
 import uk.callumr.eventstore.core.Event;
-import uk.callumr.eventstore.core.EventType;
 
 public interface MealfuEvent<Id extends MealfuEntityId> {
     ObjectMapper EVENT_OBJECT_MAPPER = new ObjectMapper()
             .registerModule(new Jdk8Module());
 
     @JsonIgnore
-    EventType eventType();
+    BasicEventType eventType();
 
     default String toJson() {
         try {

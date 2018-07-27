@@ -3,9 +3,10 @@ package mealfu.user;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import mealfu.ids.MealfuEntityId;
 import org.immutables.value.Value;
+import uk.callumr.eventstore.core.BasicEventType;
 
 @Value.Immutable
-public interface UserId extends MealfuEntityId<RecipeCreatedByUser> {
+public interface UserId extends MealfuEntityId<UserEvent> {
 
     @Override
     default String entityType() {
@@ -13,8 +14,8 @@ public interface UserId extends MealfuEntityId<RecipeCreatedByUser> {
     }
 
     @Override
-    default Class<RecipeCreatedByUser> eventClass() {
-        return RecipeCreatedByUser.class;
+    default Class<? extends UserEvent> eventClassFor(BasicEventType eventType) {
+        return UserEvent.classFor(eventType);
     }
 
     static UserId of(String id) {

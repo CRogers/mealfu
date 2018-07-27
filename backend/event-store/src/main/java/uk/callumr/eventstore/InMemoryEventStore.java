@@ -20,8 +20,8 @@ public class InMemoryEventStore implements EventStore {
     private final EasyReadWriteLock lock = new EasyReadWriteLock();
 
     @Override
-    public void addEvents(Event... events) {
-        lock.write_(() -> Arrays.stream(events).forEach(this::addEventUnlocked));
+    public void addEvents(Stream<Event> events) {
+        lock.write_(() -> events.forEach(this::addEventUnlocked));
     }
 
     @Override
