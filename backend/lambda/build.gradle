@@ -1,8 +1,23 @@
 apply from: "${rootProject.rootDir}/gradle/java.gradle"
 
+sourceSets {
+    processorExtensions {
+        java.srcDir file('src/processorExtensions/java')
+        resources.srcDir file('src/processorExtensions/resources')
+        println configurations
+        compileClasspath += configurations.processor
+        runtimeClasspath += output
+    }
+}
+
+configurations {
+
+}
+
 dependencies {
     compile (
             project(':backend:event-store'),
+            sourceSets.processorExtensions.output,
 
             'com.amazonaws:aws-lambda-java-core:1.1.0',
             'io.symphonia:lambda-logging:1.0.1',
@@ -15,12 +30,12 @@ dependencies {
             'org.glassfish.jersey.inject:jersey-hk2:2.26',
             'com.auth0:java-jwt:3.4.0',
             'com.auth0:jwks-rsa:0.6.0',
-            'com.google.auto.service:auto-service:1.0-rc4',
 
     )
 
     processor (
             'org.immutables:value:2.5.3',
+            'com.google.auto.service:auto-service:1.0-rc4',
             'org.derive4j:derive4j:0.12.4'
     )
 

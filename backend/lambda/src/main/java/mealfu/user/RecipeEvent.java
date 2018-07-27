@@ -5,27 +5,27 @@ import org.derive4j.Data;
 import uk.callumr.eventstore.core.BasicEventType;
 
 @Data
-public interface UserEvent extends MealfuEvent {
-    String CREATED_RECIPE = "created-recipe";
+public interface RecipeEvent extends MealfuEvent {
+    String RECIPE_CREATED = "recipe-created";
 
     interface Cases<R> {
-        R CreatedRecipe(RecipeId recipeId);
+        R RecipeCreated(RecipeId recipeId);
     }
 
     <R> R match(Cases<R> cases);
 
-    static Class<? extends UserEvent> classFor(BasicEventType eventType) {
+    static Class<? extends RecipeEvent> classFor(BasicEventType eventType) {
         switch (eventType.asString()) {
-            case CREATED_RECIPE:
-                return UserEvents.CreatedRecipe.class;
+            case RECIPE_CREATED:
+                return RecipeEvents.RecipeCreated.class;
         }
 
         throw new RuntimeException("Should never happen");
     }
 
     default BasicEventType eventType() {
-        return BasicEventType.of(UserEvents.cases()
-                .CreatedRecipe_("created-recipe")
+        return BasicEventType.of(RecipeEvents.cases()
+                .RecipeCreated_(RECIPE_CREATED)
                 .apply(this));
     }
 

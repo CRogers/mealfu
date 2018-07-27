@@ -6,12 +6,12 @@ import org.immutables.value.Value;
 import uk.callumr.eventstore.core.BasicEventType;
 
 @Value.Immutable
-public interface RecipeId extends MealfuEntityId<RecipeCreatedByUser> {
+public interface RecipeId extends MealfuEntityId<RecipeEvent> {
     String identifier();
 
     @Override
-    default Class<? extends RecipeCreatedByUser> eventClassFor(BasicEventType eventType) {
-        return RecipeCreatedByUser.class;
+    default Class<? extends RecipeEvent> eventClassFor(BasicEventType eventType) {
+        return RecipeEvent.classFor(eventType);
     }
 
     @Override

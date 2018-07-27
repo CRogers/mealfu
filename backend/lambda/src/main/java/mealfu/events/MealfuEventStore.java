@@ -29,8 +29,4 @@ public class MealfuEventStore {
                     }
                 });
     }
-
-    public void addEvents(MealfuEvent<?>... events) {
-        
-    }
 }
