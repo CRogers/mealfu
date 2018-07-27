@@ -1,0 +1,14 @@
+objects:
+  RecipeName:
+    alias: string
+
+entities:
+  User:
+    events:
+      CreatedRecipe:
+        recipeId: RecipedId
+  Recipe:
+    events:
+      RecipeCreated:
+        recipeName: RecipeName
+        creator: UserId

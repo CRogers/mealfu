@@ -15,8 +15,14 @@ public class User {
         RecipeId recipeId = RecipeId.random();
 
         eventStore.addEvents(
-                RecipeCreatedByUser.withId(recipeId).forEntity(userId),
-                RecipeCreated.withName(recipeName).forEntity(recipeId));
+                RecipeCreatedByUser
+                        .withId(recipeId)
+                        .forEntity(userId),
+                RecipeCreated.builder()
+                        .recipeName(recipeName)
+                        .creator(userId)
+                        .build()
+                        .forEntity(recipeId));
 
         return recipeId;
     }

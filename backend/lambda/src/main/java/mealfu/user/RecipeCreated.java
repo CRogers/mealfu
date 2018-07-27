@@ -8,6 +8,7 @@ public interface RecipeCreated extends MealfuEvent<RecipeId> {
     EventType TYPE = EventType.of("recipe-created");
 
     RecipeName recipeName();
+    UserId creator();
 
     default EventType eventType() {
         return TYPE;
@@ -17,12 +18,6 @@ public interface RecipeCreated extends MealfuEvent<RecipeId> {
 
     static Builder builder() {
         return new Builder();
-    }
-
-    static RecipeCreated withName(RecipeName recipeName) {
-        return builder()
-                .recipeName(recipeName)
-                .build();
     }
 }
 
