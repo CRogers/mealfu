@@ -1,5 +1,6 @@
 package mealfu.ids;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import mealfu.RandomStringUtils;
 import uk.callumr.eventstore.core.EntityId;
 
@@ -10,6 +11,7 @@ public abstract class MealfuEntityId<TEvent> implements EntityId {
     public abstract String identifier();
     public abstract Class<TEvent> eventClass();
 
+    @JsonValue
     public final String asString() {
         return entityType() + "-" + identifier();
     }

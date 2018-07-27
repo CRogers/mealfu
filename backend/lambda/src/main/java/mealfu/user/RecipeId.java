@@ -1,5 +1,6 @@
 package mealfu.user;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import mealfu.ids.MealfuEntityId;
 import org.immutables.value.Value;
 
@@ -16,7 +17,8 @@ public abstract class RecipeId extends MealfuEntityId<RecipeCreatedByUser> {
     public String entityType() {
         return "recipe";
     }
-    
+
+    @JsonCreator
     public static RecipeId of(String id) {
         return ImmutableRecipeId.builder()
                 .identifier(id)
