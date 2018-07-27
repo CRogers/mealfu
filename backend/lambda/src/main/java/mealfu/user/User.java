@@ -2,6 +2,9 @@ package mealfu.user;
 
 import uk.callumr.eventstore.EventStore;
 
+import static mealfu.user.RecipeEvents.RecipeCreated;
+import static mealfu.user.UserEvents.CreatedRecipe;
+
 public class User {
     private final UserId userId;
     private final EventStore eventStore;
@@ -14,7 +17,10 @@ public class User {
     public RecipeId createRecipe(RecipeName recipeName) {
         RecipeId recipeId = RecipeId.random();
 
-        eventStore.addEvents();
+        eventStore.addEvents(
+                userId.just(CreatedRecipe(recipeId)),
+                RecipeCreated(recipeId).withId(recipeId)
+        );
 
         return recipeId;
     }

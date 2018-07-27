@@ -23,7 +23,7 @@ public interface MealfuEvent<Id extends MealfuEntityId> {
         }
     }
 
-    default Event forEntity(Id id) {
+    default Event withId(Id id) {
         return Event.of(id, eventType(), toJson());
     }
 }

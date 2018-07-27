@@ -6,9 +6,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import mealfu.RandomStringUtils;
+import mealfu.events.MealfuEvent;
 import org.immutables.value.Value;
 import uk.callumr.eventstore.core.BasicEventType;
 import uk.callumr.eventstore.core.EntityId;
+import uk.callumr.eventstore.core.Event;
 
 import java.util.function.Function;
 
@@ -39,5 +41,9 @@ public interface MealfuEntityId<TEvent> extends EntityId {
 
     static <T extends MealfuEntityId> T random(Function<String, T> ctor) {
         return ctor.apply(RandomStringUtils.randomHexString(16));
+    }
+
+    default Event just(MealfuEvent<MealfuEntityId<TEvent>> mealfuEvent) {
+        return mealfuEvent.withId(this);
     }
 }
