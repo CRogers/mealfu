@@ -4,13 +4,18 @@ import mealfu.ids.MealfuEntityId;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public abstract class UserId extends MealfuEntityId {
+public abstract class UserId extends MealfuEntityId<RecipeCreatedByUser> {
 
     @Override
-    protected String entityType() {
+    public String entityType() {
         return "user";
     }
-    
+
+    @Override
+    public Class<RecipeCreatedByUser> eventClass() {
+        return RecipeCreatedByUser.class;
+    }
+
     static UserId of(String id) {
         return ImmutableUserId.builder()
                 .identifier(id)

@@ -5,9 +5,10 @@ import uk.callumr.eventstore.core.EntityId;
 
 import java.util.function.Function;
 
-public abstract class MealfuEntityId implements EntityId {
-    protected abstract String entityType();
+public abstract class MealfuEntityId<TEvent> implements EntityId {
+    public abstract String entityType();
     public abstract String identifier();
+    public abstract Class<TEvent> eventClass();
 
     public final String asString() {
         return entityType() + "-" + identifier();
