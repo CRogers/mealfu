@@ -1,7 +1,12 @@
 package mealfu.ids;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 import mealfu.RandomStringUtils;
+import org.immutables.value.Value;
 import uk.callumr.eventstore.core.EntityId;
 
 import java.util.function.Function;
@@ -11,9 +16,24 @@ public interface MealfuEntityId<TEvent> extends EntityId {
     String identifier();
     Class<TEvent> eventClass();
 
+    @Value.Check
+    default void verifyFormattedCorrectly() {
+        Preconditions.checkArgument(entityType().matches("\\w+"), "entityType must be a single alphanumeric word");
+        Preconditions.checkArgument(identifier().matches("[\\w-]+"), "identifier must be a series of alphanumeric words seperated by dashes");
+    }
+
     @JsonValue
     default String asString() {
         return entityType() + "-" + identifier();
+    }
+
+    @JsonCreator
+    static <T extends MealfuEntityId> T parse(Function<String, T> ctor, String stringRep) {
+        Iterable<String> parts = Splitter.on('-')
+                .limit(1)
+                .split(stringRep);
+
+        return ctor.apply(Iterables.get(parts, 1));
     }
 
     static <T extends MealfuEntityId> T random(Function<String, T> ctor) {

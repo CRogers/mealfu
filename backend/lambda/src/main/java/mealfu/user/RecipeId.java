@@ -18,11 +18,15 @@ public interface RecipeId extends MealfuEntityId<RecipeCreatedByUser> {
         return "recipe";
     }
 
-    @JsonCreator
     static RecipeId of(String id) {
         return ImmutableRecipeId.builder()
                 .identifier(id)
                 .build();
+    }
+
+    @JsonCreator
+    static RecipeId parse(String stringId) {
+        return MealfuEntityId.parse(RecipeId::of, stringId);
     }
 
     static RecipeId random() {
