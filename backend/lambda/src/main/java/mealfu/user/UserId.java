@@ -4,15 +4,15 @@ import mealfu.ids.MealfuEntityId;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public abstract class UserId extends MealfuEntityId<RecipeCreatedByUser> {
+public interface UserId extends MealfuEntityId<RecipeCreatedByUser> {
 
     @Override
-    public String entityType() {
+    default String entityType() {
         return "user";
     }
 
     @Override
-    public Class<RecipeCreatedByUser> eventClass() {
+    default Class<RecipeCreatedByUser> eventClass() {
         return RecipeCreatedByUser.class;
     }
 
@@ -23,7 +23,7 @@ public abstract class UserId extends MealfuEntityId<RecipeCreatedByUser> {
     }
 
     static UserId random() {
-        return random(UserId::of);
+        return MealfuEntityId.random(UserId::of);
     }
 }
 
