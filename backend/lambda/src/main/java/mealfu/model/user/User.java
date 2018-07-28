@@ -5,7 +5,8 @@ import mealfu.model.recipe.RecipeId;
 import mealfu.model.recipe.RecipeName;
 
 import static mealfu.model.recipe.RecipeEvents.RecipeCreated;
-import static mealfu.model.user.UserEvents.CreatedRecipe;
+import static mealfu.model.recipe.RecipeEvents.RecipeNameChanged;
+import static mealfu.model.user.UserEvents.AddedRecipe;
 
 public class User {
     private final UserId userId;
@@ -20,8 +21,9 @@ public class User {
         RecipeId recipeId = RecipeId.random();
 
         eventStore.addEvents(
-                userId.just(CreatedRecipe(recipeId)),
-                RecipeCreated(recipeName, userId).withId(recipeId)
+                userId.just(AddedRecipe(recipeId)),
+                RecipeCreated(userId).withId(recipeId),
+                RecipeNameChanged(recipeName).withId(recipeId)
         );
 
         return recipeId;

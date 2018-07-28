@@ -3,12 +3,12 @@ package mealfu.model.user;
 import mealfu.events.MealfuEventStore;
 import mealfu.model.recipe.RecipeId;
 import mealfu.model.recipe.RecipeName;
-import org.junit.Ignore;
 import org.junit.Test;
 import uk.callumr.eventstore.InMemoryEventStore;
 
 import static mealfu.model.recipe.RecipeEvents.RecipeCreated;
-import static mealfu.model.user.UserEvents.CreatedRecipe;
+import static mealfu.model.recipe.RecipeEvents.RecipeNameChanged;
+import static mealfu.model.user.UserEvents.AddedRecipe;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserShould {
@@ -19,16 +19,16 @@ public class UserShould {
     private final RecipeName recipeName = RecipeName.of("tasty pasta");
 
     @Test
-    @Ignore // until we get the derive4j serialization working
     public void create_a_recipe() {
         RecipeId recipeId = user.createRecipe(recipeName);
 
         assertThat(eventStore.events(recipeId)).containsExactly(
-                RecipeCreated(recipeName, userId)
+                RecipeCreated(userId),
+                RecipeNameChanged(recipeName)
         );
 
         assertThat(eventStore.events(userId)).containsExactly(
-                CreatedRecipe(recipeId)
+                AddedRecipe(recipeId)
         );
     }
 }

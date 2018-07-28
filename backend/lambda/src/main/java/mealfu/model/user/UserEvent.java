@@ -7,18 +7,18 @@ import uk.callumr.eventstore.core.BasicEventType;
 
 @Data
 public abstract class UserEvent implements MealfuEvent<UserId> {
-    private static final String CREATED_RECIPE = "created-recipe";
+    private static final String ADDED_RECIPE = "added-recipe";
 
     interface Cases<R> {
-        R CreatedRecipe(RecipeId recipeId);
+        R AddedRecipe(RecipeId recipeId);
     }
 
     public abstract <R> R match(Cases<R> cases);
 
     public static Class<? extends UserEvent> classFor(BasicEventType eventType) {
         switch (eventType.asString()) {
-            case CREATED_RECIPE:
-                return UserEvents.CreatedRecipe.class;
+            case ADDED_RECIPE:
+                return UserEvents.AddedRecipe.class;
         }
 
         throw new RuntimeException("Should never happen");
@@ -26,7 +26,7 @@ public abstract class UserEvent implements MealfuEvent<UserId> {
 
     public BasicEventType eventType() {
         return BasicEventType.of(UserEvents.cases()
-                .CreatedRecipe_("created-recipe")
+                .AddedRecipe_(ADDED_RECIPE)
                 .apply(this));
     }
 
