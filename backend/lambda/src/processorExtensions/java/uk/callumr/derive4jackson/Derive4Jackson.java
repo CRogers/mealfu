@@ -1,4 +1,4 @@
-package mealfu.derive4j;
+package uk.callumr.derive4jackson;
 
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
@@ -16,7 +16,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 @AutoService(ExtensionFactory.class)
-public final class MakeConstructorsPrivate implements ExtensionFactory {
+public final class Derive4Jackson implements ExtensionFactory {
     @Override
     public List<Extension> extensions(DeriveUtils deriveUtils) {
         return singletonList((adtModel, codeGenSpec) -> {

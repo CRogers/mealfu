@@ -17,7 +17,7 @@ public abstract class RecipeEvent implements MealfuEvent<RecipeId> {
     static Class<? extends RecipeEvent> classFor(BasicEventType eventType) {
         switch (eventType.asString()) {
             case RECIPE_CREATED:
-                return RecipeEvents.RecipeCreated.class;    
+                return RecipeEvents.RecipeCreated.class;
         }
 
         throw new RuntimeException("Should never happen");
