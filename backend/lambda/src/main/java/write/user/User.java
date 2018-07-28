@@ -1,8 +1,9 @@
-package mealfu.model.user;
+package write.user;
 
 import mealfu.events.MealfuEventStore;
 import mealfu.model.recipe.RecipeId;
 import mealfu.model.recipe.RecipeName;
+import mealfu.model.user.UserId;
 
 import static mealfu.events.EnglishHelpers.by;
 import static mealfu.events.EnglishHelpers.its;

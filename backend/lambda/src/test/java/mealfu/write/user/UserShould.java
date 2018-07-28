@@ -1,10 +1,12 @@
-package mealfu.model.user;
+package mealfu.write.user;
 
 import mealfu.events.MealfuEventStore;
 import mealfu.model.recipe.RecipeId;
 import mealfu.model.recipe.RecipeName;
+import mealfu.model.user.UserId;
 import org.junit.Test;
 import uk.callumr.eventstore.InMemoryEventStore;
+import write.user.User;
 
 import static mealfu.model.recipe.RecipeEvents.Created;
 import static mealfu.model.recipe.RecipeEvents.NameChanged;
