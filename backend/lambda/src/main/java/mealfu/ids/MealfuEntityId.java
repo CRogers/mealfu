@@ -14,23 +14,23 @@ import uk.callumr.eventstore.core.Event;
 import java.util.List;
 import java.util.function.Function;
 
-public interface MealfuEntityId<TEvent extends MealfuEvent<?>> extends EntityId {
-    String entityType();
-    String identifier();
-    Class<? extends TEvent> eventClassFor(BasicEventType eventType);
+public abstract class MealfuEntityId<TEvent extends MealfuEvent<?>> implements EntityId {
+    public abstract String entityType();
+    public abstract String identifier();
+    public abstract Class<? extends TEvent> eventClassFor(BasicEventType eventType);
 
     @Value.Check
-    default void verifyFormattedCorrectly() {
+    private void verifyFormattedCorrectly() {
         Preconditions.checkArgument(entityType().matches("\\w+"), "entityType must be a single alphanumeric word");
         Preconditions.checkArgument(identifier().matches("[\\w-]+"), "identifier must be a series of alphanumeric words seperated by dashes");
     }
 
     @JsonValue
-    default String asString() {
+    public final String asString() {
         return entityType() + "-" + identifier();
     }
 
-    static <TId extends MealfuEntityId> TId parse(Function<String, TId> ctor, String stringRep) {
+    protected static <TId extends MealfuEntityId> TId parse(Function<String, TId> ctor, String stringRep) {
         List<String> parts = Splitter.on('-')
                 .limit(2)
                 .splitToList(stringRep);
@@ -45,11 +45,11 @@ public interface MealfuEntityId<TEvent extends MealfuEvent<?>> extends EntityId 
         return id;
     }
 
-    static <T extends MealfuEntityId> T random(Function<String, T> ctor) {
+    protected static <T extends MealfuEntityId> T random(Function<String, T> ctor) {
         return ctor.apply(RandomStringUtils.randomHexString(16));
     }
 
-    default Event just(MealfuEvent<? extends MealfuEntityId<TEvent>> mealfuEvent) {
+    public Event just(MealfuEvent<? extends MealfuEntityId<TEvent>> mealfuEvent) {
         return ((MealfuEvent) mealfuEvent).withId(this);
     }
 }
