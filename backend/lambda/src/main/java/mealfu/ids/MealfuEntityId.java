@@ -52,4 +52,9 @@ public abstract class MealfuEntityId<TEvent extends MealfuEvent<?>> implements E
     public Event just(MealfuEvent<? extends MealfuEntityId<TEvent>> mealfuEvent) {
         return ((MealfuEvent) mealfuEvent).withId(this);
     }
+
+    @Override
+    public String toString() {
+        return asString();
+    }
 }
