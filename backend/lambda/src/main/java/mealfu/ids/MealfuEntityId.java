@@ -49,7 +49,7 @@ public interface MealfuEntityId<TEvent extends MealfuEvent<?>> extends EntityId 
         return ctor.apply(RandomStringUtils.randomHexString(16));
     }
 
-    default <T extends MealfuEvent<? extends MealfuEntityId<TEvent>>> Event just(TEvent mealfuEvent) {
+    default Event just(MealfuEvent<? extends MealfuEntityId<TEvent>> mealfuEvent) {
         return ((MealfuEvent) mealfuEvent).withId(this);
     }
 }
