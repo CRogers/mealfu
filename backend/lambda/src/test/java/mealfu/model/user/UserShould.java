@@ -6,8 +6,8 @@ import mealfu.model.recipe.RecipeName;
 import org.junit.Test;
 import uk.callumr.eventstore.InMemoryEventStore;
 
-import static mealfu.model.recipe.Recipe.Created;
-import static mealfu.model.recipe.Recipe.NameChanged;
+import static mealfu.model.recipe.RecipeEvents.Created;
+import static mealfu.model.recipe.RecipeEvents.NameChanged;
 import static mealfu.model.user.UserEvents.AddedRecipe;
 import static org.assertj.core.api.Assertions.assertThat;
 

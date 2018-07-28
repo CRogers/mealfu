@@ -7,8 +7,8 @@ import mealfu.model.recipe.RecipeName;
 import static mealfu.events.EnglishHelpers.by;
 import static mealfu.events.EnglishHelpers.its;
 import static mealfu.events.EnglishHelpers.to;
-import static mealfu.model.recipe.Recipe.Created;
-import static mealfu.model.recipe.Recipe.NameChanged;
+import static mealfu.model.recipe.RecipeEvents.Created;
+import static mealfu.model.recipe.RecipeEvents.NameChanged;
 import static mealfu.model.user.UserEvents.AddedRecipe;
 
 public class User {
