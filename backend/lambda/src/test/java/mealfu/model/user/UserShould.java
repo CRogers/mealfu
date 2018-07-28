@@ -6,8 +6,8 @@ import mealfu.model.recipe.RecipeName;
 import org.junit.Test;
 import uk.callumr.eventstore.InMemoryEventStore;
 
-import static mealfu.model.recipe.RecipeEvents.RecipeCreated;
-import static mealfu.model.recipe.RecipeEvents.RecipeNameChanged;
+import static mealfu.model.recipe.Recipe.Created;
+import static mealfu.model.recipe.Recipe.NameChanged;
 import static mealfu.model.user.UserEvents.AddedRecipe;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -23,8 +23,8 @@ public class UserShould {
         RecipeId recipeId = user.createRecipe(recipeName);
 
         assertThat(eventStore.events(recipeId)).containsExactly(
-                RecipeCreated(userId),
-                RecipeNameChanged(recipeName)
+                Created(userId),
+                NameChanged(recipeName)
         );
 
         assertThat(eventStore.events(userId)).containsExactly(
