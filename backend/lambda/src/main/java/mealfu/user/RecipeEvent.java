@@ -5,11 +5,11 @@ import org.derive4j.Data;
 import uk.callumr.eventstore.core.BasicEventType;
 
 @Data
-public interface RecipeEvent extends MealfuEvent {
+public interface RecipeEvent extends MealfuEvent<RecipeId> {
     String RECIPE_CREATED = "recipe-created";
 
     interface Cases<R> {
-        R RecipeCreated(RecipeId recipeId);
+        R RecipeCreated(RecipeName recipeName, UserId creator);
     }
 
     <R> R match(Cases<R> cases);

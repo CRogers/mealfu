@@ -5,7 +5,7 @@ import org.derive4j.Data;
 import uk.callumr.eventstore.core.BasicEventType;
 
 @Data
-public interface UserEvent extends MealfuEvent {
+public interface UserEvent extends MealfuEvent<UserId> {
     String CREATED_RECIPE = "created-recipe";
 
     interface Cases<R> {

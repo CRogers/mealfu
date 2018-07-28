@@ -19,7 +19,7 @@ public class User {
 
         eventStore.addEvents(
                 userId.just(CreatedRecipe(recipeId)),
-                RecipeCreated(recipeId).withId(recipeId)
+                RecipeCreated(recipeName, userId).withId(recipeId)
         );
 
         return recipeId;
