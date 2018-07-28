@@ -4,11 +4,15 @@ import com.google.auto.service.AutoService;
 import com.google.common.base.CaseFormat;
 import com.squareup.javapoet.*;
 import org.derive4j.processor.api.*;
+import org.derive4j.processor.api.model.DataConstructions;
 import org.derive4j.processor.api.model.DataConstructor;
+import org.derive4j.processor.api.model.MultipleConstructorsSupport;
 
 import javax.lang.model.element.Modifier;
+import javax.lang.model.type.DeclaredType;
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -27,6 +31,17 @@ public final class Derive4Jackson implements ExtensionFactory {
     public List<Extension> extensions(DeriveUtils deriveUtils) {
         return singletonList((adtModel, codeGenSpec) -> {
 
+            String jsonTypeNamePrefix = DataConstructions.caseOf(adtModel.dataConstruction())
+                    .multipleConstructors(multipleConstructors -> MultipleConstructorsSupport.caseOf(multipleConstructors)
+                            .visitorDispatch((variableElement, declaredType, list) -> jsonTypeInfoPrefixFrom(declaredType))
+                            .otherwiseEmpty()
+                            .flatMap(x -> x))
+                    .oneConstructor(dataConstructor -> jsonTypeInfoPrefixFrom(dataConstructor.deconstructor().visitorType()))
+                    .otherwiseEmpty()
+                    .flatMap(x -> x)
+                    .map(JsonTypeInfoPrefix::value)
+                    .orElse("");
+
             Set<String> strictConstructors = adtModel.dataConstruction()
                     .constructors()
                     .stream()
@@ -38,14 +53,18 @@ public final class Derive4Jackson implements ExtensionFactory {
                     .modTypes(typeSpecs ->
                             typeSpecs.stream()
                                     .map(ts -> strictConstructors.contains(ts.name.toLowerCase())
-                                            ? removePrivateModifier(ts)
+                                            ? removePrivateModifier(jsonTypeNamePrefix, ts)
                                             : ts)
                                     .collect(toList()))
                     .build());
         });
     }
 
-    private static TypeSpec removePrivateModifier(TypeSpec ts) {
+    private static Optional<JsonTypeInfoPrefix> jsonTypeInfoPrefixFrom(DeclaredType declaredType) {
+        return Optional.ofNullable(declaredType.asElement().getAnnotation(JsonTypeInfoPrefix.class));
+    }
+
+    private static TypeSpec removePrivateModifier(String jsonTypeNamePrefix, TypeSpec ts) {
         Stream<MethodSpec> getters = ts.fieldSpecs.stream()
                 .map(fieldSpec -> MethodSpec.methodBuilder(fieldSpec.name)
                         .addAnnotation(AnnotationSpec.builder(JSON_PROPERTY)
@@ -60,7 +79,7 @@ public final class Derive4Jackson implements ExtensionFactory {
 
         return new TypeSpecModifier(ts)
                 .modAnnotations(annotationSpecs -> Stream.concat(annotationSpecs.stream(), Stream.of(AnnotationSpec.builder(ClassName.get(JACKSON_ANNOTATION, "JsonTypeName"))
-                                .addMember("value", "$S", CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, ts.name))
+                                .addMember("value", "$S", jsonTypeNamePrefix + CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, ts.name))
                                 .build()))
                         .collect(toList()))
                 .modModifiers(modifiers -> modifiers
