@@ -10,6 +10,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
@@ -19,6 +20,7 @@ import static java.util.stream.Collectors.toSet;
 public final class Derive4Jackson implements ExtensionFactory {
 
     public static final String JACKSON_ANNOTATION = "com.fasterxml.jackson.annotation";
+    public static final ClassName JSON_PROPERTY = ClassName.get(JACKSON_ANNOTATION, "JsonProperty");
 
     @Override
     public List<Extension> extensions(DeriveUtils deriveUtils) {
@@ -43,25 +45,36 @@ public final class Derive4Jackson implements ExtensionFactory {
     }
 
     private static TypeSpec removePrivateModifier(TypeSpec ts) {
+        Stream<MethodSpec> getters = ts.fieldSpecs.stream()
+                .map(fieldSpec -> MethodSpec.methodBuilder(fieldSpec.name)
+                        .addAnnotation(AnnotationSpec.builder(JSON_PROPERTY)
+                                .addMember("value", "$S", fieldSpec.name)
+                                .build())
+                        .addModifiers(Modifier.PUBLIC)
+                        .returns(fieldSpec.type)
+                        .addCode(CodeBlock.builder()
+                                .addStatement("return $N", fieldSpec)
+                                .build())
+                        .build());
+
         return new TypeSpecModifier(ts)
                 .modModifiers(modifiers -> modifiers
                         .stream()
                         .filter(m -> m != Modifier.PRIVATE)
                         .collect(toSet()))
-                .modMethods(methodSpecs -> methodSpecs.stream()
+                .modMethods(methodSpecs -> Stream.concat(getters, methodSpecs.stream()
                         .map(methodSpec -> methodSpec.isConstructor()
                                 ? clearParameterList(methodSpec.toBuilder())
-                                        .addModifiers(Modifier.PUBLIC)
                                         .addAnnotation(ClassName.get(JACKSON_ANNOTATION, "JsonCreator"))
                                         .addParameters(methodSpec.parameters.stream()
                                                 .map(parameterSpec -> parameterSpec.toBuilder()
-                                                        .addAnnotation(AnnotationSpec.builder(ClassName.get(JACKSON_ANNOTATION, "JsonProperty"))
+                                                        .addAnnotation(AnnotationSpec.builder(JSON_PROPERTY)
                                                                 .addMember("value", "$S", parameterSpec.name)
                                                                 .build())
                                                         .build())
                                                 .collect(Collectors.toList()))
                                         .build()
-                                : methodSpec)
+                                : methodSpec))
                         .collect(Collectors.toList()))
                 .build();
     }
