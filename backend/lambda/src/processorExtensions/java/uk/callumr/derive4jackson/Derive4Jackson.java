@@ -1,6 +1,7 @@
 package uk.callumr.derive4jackson;
 
 import com.google.auto.service.AutoService;
+import com.google.common.base.CaseFormat;
 import com.squareup.javapoet.*;
 import org.derive4j.processor.api.*;
 import org.derive4j.processor.api.model.DataConstructor;
@@ -58,6 +59,10 @@ public final class Derive4Jackson implements ExtensionFactory {
                         .build());
 
         return new TypeSpecModifier(ts)
+                .modAnnotations(annotationSpecs -> Stream.concat(annotationSpecs.stream(), Stream.of(AnnotationSpec.builder(ClassName.get(JACKSON_ANNOTATION, "JsonTypeName"))
+                                .addMember("value", "$S", CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, ts.name))
+                                .build()))
+                        .collect(toList()))
                 .modModifiers(modifiers -> modifiers
                         .stream()
                         .filter(m -> m != Modifier.PRIVATE)
