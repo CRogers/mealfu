@@ -1,6 +1,5 @@
 package mealfu.ids;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
@@ -12,9 +11,10 @@ import uk.callumr.eventstore.core.BasicEventType;
 import uk.callumr.eventstore.core.EntityId;
 import uk.callumr.eventstore.core.Event;
 
+import java.util.List;
 import java.util.function.Function;
 
-public interface MealfuEntityId<TEvent> extends EntityId {
+public interface MealfuEntityId<TEvent extends MealfuEvent<?>> extends EntityId {
     String entityType();
     String identifier();
     Class<? extends TEvent> eventClassFor(BasicEventType eventType);
@@ -30,13 +30,19 @@ public interface MealfuEntityId<TEvent> extends EntityId {
         return entityType() + "-" + identifier();
     }
 
-    @JsonCreator
-    static <T extends MealfuEntityId> T parse(Function<String, T> ctor, String stringRep) {
-        Iterable<String> parts = Splitter.on('-')
-                .limit(1)
-                .split(stringRep);
+    static <TId extends MealfuEntityId> TId parse(Function<String, TId> ctor, String stringRep) {
+        List<String> parts = Splitter.on('-')
+                .limit(2)
+                .splitToList(stringRep);
 
-        return ctor.apply(Iterables.get(parts, 1));
+        Preconditions.checkArgument(parts.size() == 2, "Must be splittable on first -");
+
+        TId id = ctor.apply(Iterables.get(parts, 1));
+
+        String deserializedType = parts.get(0);
+        Preconditions.checkArgument(deserializedType.equals(id.entityType()), "Deserialized as %s but were expecting a %s", deserializedType, id.entityType());
+
+        return id;
     }
 
     static <T extends MealfuEntityId> T random(Function<String, T> ctor) {

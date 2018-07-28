@@ -1,15 +1,15 @@
 package mealfu.user;
 
-import uk.callumr.eventstore.EventStore;
+import mealfu.events.MealfuEventStore;
 
 import static mealfu.user.RecipeEvents.RecipeCreated;
 import static mealfu.user.UserEvents.CreatedRecipe;
 
 public class User {
     private final UserId userId;
-    private final EventStore eventStore;
+    private final MealfuEventStore eventStore;
 
-    public User(UserId userId, EventStore eventStore) {
+    public User(UserId userId, MealfuEventStore eventStore) {
         this.userId = userId;
         this.eventStore = eventStore;
     }
