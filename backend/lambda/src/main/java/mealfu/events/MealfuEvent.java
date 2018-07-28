@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import mealfu.ids.MealfuEntityId;
 import uk.callumr.eventstore.core.BasicEventType;
 import uk.callumr.eventstore.core.Event;
@@ -16,8 +15,7 @@ import java.io.IOException;
 public interface MealfuEvent<Id extends MealfuEntityId> {
     ObjectMapper EVENT_OBJECT_MAPPER = new ObjectMapper()
             .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
-            .registerModule(new Jdk8Module())
-            .registerModule(new ParameterNamesModule());
+            .registerModule(new Jdk8Module());
 
     @JsonIgnore
     BasicEventType eventType();
