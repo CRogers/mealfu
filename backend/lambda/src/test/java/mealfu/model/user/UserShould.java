@@ -1,12 +1,14 @@
-package mealfu.user;
+package mealfu.model.user;
 
 import mealfu.events.MealfuEventStore;
+import mealfu.model.recipe.RecipeId;
+import mealfu.model.recipe.RecipeName;
 import org.junit.Ignore;
 import org.junit.Test;
 import uk.callumr.eventstore.InMemoryEventStore;
 
-import static mealfu.user.RecipeEvents.RecipeCreated;
-import static mealfu.user.UserEvents.CreatedRecipe;
+import static mealfu.model.recipe.RecipeEvents.RecipeCreated;
+import static mealfu.model.user.UserEvents.CreatedRecipe;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserShould {

@@ -1,4 +1,4 @@
-package mealfu.user;
+package mealfu.model.recipe;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import mealfu.ids.MealfuEntityId;

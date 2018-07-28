@@ -1,6 +1,7 @@
-package mealfu.user;
+package mealfu.model.user;
 
 import mealfu.events.MealfuEvent;
+import mealfu.model.recipe.RecipeId;
 import org.derive4j.Data;
 import uk.callumr.eventstore.core.BasicEventType;
 
