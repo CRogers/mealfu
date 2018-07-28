@@ -5,16 +5,16 @@ import org.derive4j.Data;
 import uk.callumr.eventstore.core.BasicEventType;
 
 @Data
-public interface UserEvent extends MealfuEvent<UserId> {
-    String CREATED_RECIPE = "created-recipe";
+public abstract class UserEvent implements MealfuEvent<UserId> {
+    private static final String CREATED_RECIPE = "created-recipe";
 
     interface Cases<R> {
         R CreatedRecipe(RecipeId recipeId);
     }
 
-    <R> R match(Cases<R> cases);
+    public abstract <R> R match(Cases<R> cases);
 
-    static Class<? extends UserEvent> classFor(BasicEventType eventType) {
+    public static Class<? extends UserEvent> classFor(BasicEventType eventType) {
         switch (eventType.asString()) {
             case CREATED_RECIPE:
                 return UserEvents.CreatedRecipe.class;
@@ -23,16 +23,16 @@ public interface UserEvent extends MealfuEvent<UserId> {
         throw new RuntimeException("Should never happen");
     }
 
-    default BasicEventType eventType() {
+    public BasicEventType eventType() {
         return BasicEventType.of(UserEvents.cases()
                 .CreatedRecipe_("created-recipe")
                 .apply(this));
     }
 
     @Override
-    int hashCode();
+    public abstract int hashCode();
     @Override
-    boolean equals(Object obj);
+    public abstract boolean equals(Object obj);
     @Override
-    String toString();
+    public abstract String toString();
 }
