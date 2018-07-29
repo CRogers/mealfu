@@ -16,6 +16,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -68,6 +69,21 @@ public final class Derive4Jackson implements ExtensionFactory {
                     .initializer(allConstructorsArrayLiteral)
                     .build();
 
+            Function<TypeSpec, String> jsonTypeName = ts -> jsonTypeNamePrefix + CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, ts.name);
+
+            ParameterSpec typeNameParam = ParameterSpec.builder(String.class, "typeName").build();
+
+            MethodSpec typeNameToClass = MethodSpec.methodBuilder("typeNameToClass")
+                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                    .returns(ParameterizedTypeName.get(ClassName.get(Class.class), WildcardTypeName.subtypeOf(TypeName.get(adtModel.typeConstructor().declaredType()))))
+                    .addParameter(typeNameParam)
+                    .addCode(CodeBlock.of("switch($N) {", typeNameParam))
+                    .addCode(allStrictConstructors.stream()
+                            .map(typeSpec -> CodeBlock.of("\n\tcase $S: return $N.class;", jsonTypeName.apply(typeSpec), typeSpec))
+                            .collect(CodeBlock.joining("")))
+                    .addCode(CodeBlock.of("\n\tdefault: throw new $1T($2N + $3S);\n}\n", IllegalArgumentException.class, typeNameParam, "is not a valid type name"))
+                    .build();
+
             TypeSpec subtypes = TypeSpec.annotationBuilder("AllJsonSubTypes")
                     .addAnnotation(AnnotationSpec.builder(Retention.class)
                             .addMember("value", "$T.RUNTIME", RetentionPolicy.class)
@@ -85,13 +101,14 @@ public final class Derive4Jackson implements ExtensionFactory {
                     .modTypes(typeSpecs ->
                             typeSpecs.stream()
                                     .map(ts -> strictConstructors.contains(ts.name.toLowerCase())
-                                            ? removePrivateModifier(jsonTypeNamePrefix, ts)
+                                            ? removePrivateModifier(jsonTypeName, ts)
                                             : ts)
                                     .collect(toList()))
                     .build()
                     .toBuilder()
                     .addField(allConstructors)
                     .addType(subtypes)
+                    .addMethod(typeNameToClass)
                     .build());
         });
     }
@@ -100,7 +117,7 @@ public final class Derive4Jackson implements ExtensionFactory {
         return Optional.ofNullable(declaredType.asElement().getAnnotation(JsonTypeNamePrefix.class));
     }
 
-    private static TypeSpec removePrivateModifier(String jsonTypeNamePrefix, TypeSpec ts) {
+    private static TypeSpec removePrivateModifier(Function<TypeSpec, String> jsonTypeName, TypeSpec ts) {
         Stream<MethodSpec> getters = ts.fieldSpecs.stream()
                 .map(fieldSpec -> MethodSpec.methodBuilder(fieldSpec.name)
                         .addAnnotation(AnnotationSpec.builder(JSON_PROPERTY)
@@ -115,7 +132,7 @@ public final class Derive4Jackson implements ExtensionFactory {
 
         return new TypeSpecModifier(ts)
                 .modAnnotations(annotationSpecs -> Stream.concat(annotationSpecs.stream(), Stream.of(AnnotationSpec.builder(JSON_TYPE_NAME)
-                                .addMember("value", "$S", jsonTypeNamePrefix + CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, ts.name))
+                                .addMember("value", "$S", jsonTypeName.apply(ts))
                                 .build()))
                         .collect(toList()))
                 .modModifiers(modifiers -> modifiers

@@ -9,8 +9,6 @@ import uk.callumr.eventstore.core.BasicEventType;
 @Data
 @RecipeEvents.AllJsonSubTypes
 public abstract class RecipeEvent implements MealfuEvent<RecipeId> {
-    private static final String RECIPE_CREATED = "recipe-created";
-    private static final String RECIPE_NAME_CHANGED = "recipe-name-changed";
 
     @JsonTypeNamePrefix("recipe-")
     interface Cases<R> {
@@ -21,20 +19,7 @@ public abstract class RecipeEvent implements MealfuEvent<RecipeId> {
     public abstract <R> R match(Cases<R> cases);
 
     static Class<? extends RecipeEvent> classFor(BasicEventType eventType) {
-        switch (eventType.asString()) {
-            case RECIPE_CREATED:
-                return RecipeEvents.Created.class;
-            case RECIPE_NAME_CHANGED:
-                return RecipeEvents.NameChanged.class;
-        }
-
-        throw new RuntimeException("Should never happen");
-    }
-
-    public final BasicEventType eventType() {
-        return BasicEventType.of(RecipeEvents.caseOf(this)
-                .Created_(RECIPE_CREATED)
-                .NameChanged_(RECIPE_NAME_CHANGED));
+        return RecipeEvents.typeNameToClass(eventType.asString());
     }
 
     @Override

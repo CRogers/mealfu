@@ -1,6 +1,7 @@
 package mealfu.events;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -15,21 +16,9 @@ public interface MealfuEvent<Id extends MealfuEntityId> {
             .registerModule(new Jdk8Module());
 
     @JsonIgnore
-    BasicEventType eventType();
-
-//    default BasicEventType lol() {
-//        return BasicEventType.of(getClass().getAnnotation(JsonTypeName.class).value());
-//    }
-//
-//    static Class classFor(Class[] constructors, BasicEventType eventType) {
-//        return Arrays.stream(constructors)
-//                .filter(constructorClass -> {
-//                    JsonTypeName annotation = constructorClass.<JsonTypeName>getAnnotation(JsonTypeName.class);
-//                    return annotation.value().equals(eventType.asString());
-//                })
-//                .findFirst()
-//                .get();
-//    }
+    default BasicEventType eventType() {
+        return BasicEventType.of(getClass().getAnnotation(JsonTypeName.class).value());
+    }
 
     default String toJson() {
         try {
