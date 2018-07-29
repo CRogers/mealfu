@@ -1,7 +1,6 @@
 package mealfu.events;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -10,7 +9,6 @@ import uk.callumr.eventstore.core.BasicEventType;
 import uk.callumr.eventstore.core.Event;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 public interface MealfuEvent<Id extends MealfuEntityId> {
     ObjectMapper EVENT_OBJECT_MAPPER = new ObjectMapper()
@@ -19,19 +17,19 @@ public interface MealfuEvent<Id extends MealfuEntityId> {
     @JsonIgnore
     BasicEventType eventType();
 
-    default BasicEventType lol() {
-        return BasicEventType.of(getClass().getAnnotation(JsonTypeName.class).value());
-    }
-
-    static Class classFor(Class[] constructors, BasicEventType eventType) {
-        return Arrays.stream(constructors)
-                .filter(constructorClass -> {
-                    JsonTypeName annotation = constructorClass.<JsonTypeName>getAnnotation(JsonTypeName.class);
-                    return annotation.value().equals(eventType.asString());
-                })
-                .findFirst()
-                .get();
-    }
+//    default BasicEventType lol() {
+//        return BasicEventType.of(getClass().getAnnotation(JsonTypeName.class).value());
+//    }
+//
+//    static Class classFor(Class[] constructors, BasicEventType eventType) {
+//        return Arrays.stream(constructors)
+//                .filter(constructorClass -> {
+//                    JsonTypeName annotation = constructorClass.<JsonTypeName>getAnnotation(JsonTypeName.class);
+//                    return annotation.value().equals(eventType.asString());
+//                })
+//                .findFirst()
+//                .get();
+//    }
 
     default String toJson() {
         try {
