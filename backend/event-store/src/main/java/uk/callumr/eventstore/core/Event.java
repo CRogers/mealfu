@@ -1,12 +1,17 @@
 package uk.callumr.eventstore.core;
 
+import org.immutables.value.Value;
+
+@Value.Immutable
 public interface Event {
     EntityId entityId();
     EventType eventType();
     String data();
 
-    static BasicEvent.Builder builder() {
-        return BasicEvent.builder();
+    class Builder extends ImmutableEvent.Builder {}
+
+    static Event.Builder builder() {
+        return new Event.Builder();
     }
 
     static Event of(EntityId entityId, EventType eventType, String data) {

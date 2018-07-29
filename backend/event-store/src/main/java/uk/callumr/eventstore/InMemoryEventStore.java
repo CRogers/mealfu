@@ -66,7 +66,7 @@ public class InMemoryEventStore implements EventStore {
     private boolean addEventUnlocked(Event event) {
         return events.add(VersionedEvent.builder()
                 .version(version.getAndIncrement())
-                .event(BasicEvent.builder()
+                .event(Event.builder()
                         .entityId(event.entityId())
                         .eventType(event.eventType())
                         .data(event.data())
