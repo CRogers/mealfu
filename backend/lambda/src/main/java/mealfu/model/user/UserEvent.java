@@ -3,14 +3,15 @@ package mealfu.model.user;
 import mealfu.events.MealfuEvent;
 import mealfu.model.recipe.RecipeId;
 import org.derive4j.Data;
-import uk.callumr.derive4jackson.JsonTypeInfoPrefix;
+import uk.callumr.derive4jackson.JsonTypeNamePrefix;
 import uk.callumr.eventstore.core.BasicEventType;
 
 @Data
+@UserEvents.AllJsonSubTypes
 public abstract class UserEvent implements MealfuEvent<UserId> {
     private static final String ADDED_RECIPE = "added-recipe";
 
-    @JsonTypeInfoPrefix("user-")
+    @JsonTypeNamePrefix("user-")
     interface Cases<R> {
         R AddedRecipe(RecipeId recipeId);
     }

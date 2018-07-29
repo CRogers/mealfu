@@ -3,15 +3,16 @@ package mealfu.model.recipe;
 import mealfu.events.MealfuEvent;
 import mealfu.model.user.UserId;
 import org.derive4j.Data;
-import uk.callumr.derive4jackson.JsonTypeInfoPrefix;
+import uk.callumr.derive4jackson.JsonTypeNamePrefix;
 import uk.callumr.eventstore.core.BasicEventType;
 
 @Data
+@RecipeEvents.AllJsonSubTypes
 public abstract class RecipeEvent implements MealfuEvent<RecipeId> {
     private static final String RECIPE_CREATED = "recipe-created";
     private static final String RECIPE_NAME_CHANGED = "recipe-name-changed";
 
-    @JsonTypeInfoPrefix("recipe-")
+    @JsonTypeNamePrefix("recipe-")
     interface Cases<R> {
         R Created(UserId creator);
         R NameChanged(RecipeName recipeName);

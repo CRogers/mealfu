@@ -10,6 +10,8 @@ import org.derive4j.processor.api.model.MultipleConstructorsSupport;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.DeclaredType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
@@ -24,8 +26,13 @@ import static java.util.stream.Collectors.toSet;
 @AutoService(ExtensionFactory.class)
 public final class Derive4Jackson implements ExtensionFactory {
 
-    public static final String JACKSON_ANNOTATION = "com.fasterxml.jackson.annotation";
-    public static final ClassName JSON_PROPERTY = ClassName.get(JACKSON_ANNOTATION, "JsonProperty");
+    private static final String JACKSON_ANNOTATION = "com.fasterxml.jackson.annotation";
+    private static final ClassName JSON_CREATOR = ClassName.get(JACKSON_ANNOTATION, "JsonCreator");
+    private static final ClassName JSON_TYPE_NAME = ClassName.get(JACKSON_ANNOTATION, "JsonTypeName");
+    private static final ClassName JSON_PROPERTY = ClassName.get(JACKSON_ANNOTATION, "JsonProperty");
+    private static final ClassName JACKSON_ANNOTATIONS_INSIDE = ClassName.get(JACKSON_ANNOTATION, "JacksonAnnotationsInside");
+    private static final ClassName JSON_SUB_TYPES = ClassName.get(JACKSON_ANNOTATION, "JsonSubTypes");
+    private static final ClassName JSON_SUB_TYPES_TYPE = ClassName.get(JACKSON_ANNOTATION, "JsonSubTypes", "Type");
 
     @Override
     public List<Extension> extensions(DeriveUtils deriveUtils) {
@@ -39,7 +46,7 @@ public final class Derive4Jackson implements ExtensionFactory {
                     .oneConstructor(dataConstructor -> jsonTypeInfoPrefixFrom(dataConstructor.deconstructor().visitorType()))
                     .otherwiseEmpty()
                     .flatMap(x -> x)
-                    .map(JsonTypeInfoPrefix::value)
+                    .map(JsonTypeNamePrefix::value)
                     .orElse("");
 
             Set<String> strictConstructors = adtModel.dataConstruction()
@@ -49,13 +56,29 @@ public final class Derive4Jackson implements ExtensionFactory {
                     .map(String::toLowerCase)
                     .collect(toSet());
 
-            CodeBlock allConstructorsArrayLiteral = codeGenSpec.typeSpecs.stream()
+            List<TypeSpec> allStrictConstructors = codeGenSpec.typeSpecs.stream()
                     .filter(typeSpec -> strictConstructors.contains(typeSpec.name.toLowerCase()))
+                    .collect(Collectors.toList());
+
+            CodeBlock allConstructorsArrayLiteral = allStrictConstructors.stream()
                     .map(typeSpec -> CodeBlock.of("$N.class", typeSpec))
                     .collect(CodeBlock.joining(",", "new Class[] {", "}"));
 
             FieldSpec allConstructors = FieldSpec.builder(ArrayTypeName.of(Class.class), "ALL_CONSTRUCTORS", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                     .initializer(allConstructorsArrayLiteral)
+                    .build();
+
+            TypeSpec subtypes = TypeSpec.annotationBuilder("AllJsonSubTypes")
+                    .addAnnotation(AnnotationSpec.builder(Retention.class)
+                            .addMember("value", "$T.RUNTIME", RetentionPolicy.class)
+                            .build())
+                    .addAnnotation(JACKSON_ANNOTATIONS_INSIDE)
+                    .addAnnotation(AnnotationSpec.builder(JSON_SUB_TYPES)
+                            .addMember("value", allStrictConstructors.stream()
+                                    .map(typeSpec -> CodeBlock.of("@$1T($2N.class)", JSON_SUB_TYPES_TYPE, typeSpec))
+                                    .collect(CodeBlock.joining(", ", "{", "}")))
+                            .build())
+                    .addModifiers(Modifier.PUBLIC)
                     .build();
 
             return DeriveResult.result(new TypeSpecModifier(codeGenSpec)
@@ -68,12 +91,13 @@ public final class Derive4Jackson implements ExtensionFactory {
                     .build()
                     .toBuilder()
                     .addField(allConstructors)
+                    .addType(subtypes)
                     .build());
         });
     }
 
-    private static Optional<JsonTypeInfoPrefix> jsonTypeInfoPrefixFrom(DeclaredType declaredType) {
-        return Optional.ofNullable(declaredType.asElement().getAnnotation(JsonTypeInfoPrefix.class));
+    private static Optional<JsonTypeNamePrefix> jsonTypeInfoPrefixFrom(DeclaredType declaredType) {
+        return Optional.ofNullable(declaredType.asElement().getAnnotation(JsonTypeNamePrefix.class));
     }
 
     private static TypeSpec removePrivateModifier(String jsonTypeNamePrefix, TypeSpec ts) {
@@ -90,7 +114,7 @@ public final class Derive4Jackson implements ExtensionFactory {
                         .build());
 
         return new TypeSpecModifier(ts)
-                .modAnnotations(annotationSpecs -> Stream.concat(annotationSpecs.stream(), Stream.of(AnnotationSpec.builder(ClassName.get(JACKSON_ANNOTATION, "JsonTypeName"))
+                .modAnnotations(annotationSpecs -> Stream.concat(annotationSpecs.stream(), Stream.of(AnnotationSpec.builder(JSON_TYPE_NAME)
                                 .addMember("value", "$S", jsonTypeNamePrefix + CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, ts.name))
                                 .build()))
                         .collect(toList()))
@@ -101,7 +125,7 @@ public final class Derive4Jackson implements ExtensionFactory {
                 .modMethods(methodSpecs -> Stream.concat(getters, methodSpecs.stream()
                         .map(methodSpec -> methodSpec.isConstructor()
                                 ? clearParameterList(methodSpec.toBuilder())
-                                        .addAnnotation(ClassName.get(JACKSON_ANNOTATION, "JsonCreator"))
+                                        .addAnnotation(JSON_CREATOR)
                                         .addParameters(methodSpec.parameters.stream()
                                                 .map(parameterSpec -> parameterSpec.toBuilder()
                                                         .addAnnotation(AnnotationSpec.builder(JSON_PROPERTY)
