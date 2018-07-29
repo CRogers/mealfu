@@ -69,11 +69,11 @@ public final class Derive4Jackson implements ExtensionFactory {
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .returns(ParameterizedTypeName.get(ClassName.get(Class.class), WildcardTypeName.subtypeOf(TypeName.get(adtModel.typeConstructor().declaredType()))))
                     .addParameter(typeNameParam)
-                    .addCode(CodeBlock.of("switch($N) {", typeNameParam))
+                    .addCode(CodeBlock.of("switch ($N) {", typeNameParam))
                     .addCode(allStrictConstructors.stream()
                             .map(typeSpec -> CodeBlock.of("\n\tcase $S: return $N.class;", jsonTypeName.apply(typeSpec), typeSpec))
                             .collect(CodeBlock.joining("")))
-                    .addCode(CodeBlock.of("\n\tdefault: throw new $1T($2N + $3S);\n}\n", IllegalArgumentException.class, typeNameParam, "is not a valid type name"))
+                    .addCode(CodeBlock.of("\n\tdefault: throw new $1T($2N + $3S);\n}\n", IllegalArgumentException.class, typeNameParam, " is not a valid type name"))
                     .build();
 
             TypeSpec subtypes = TypeSpec.annotationBuilder("AllJsonSubTypes")
