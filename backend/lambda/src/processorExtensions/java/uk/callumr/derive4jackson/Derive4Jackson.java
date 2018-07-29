@@ -61,14 +61,6 @@ public final class Derive4Jackson implements ExtensionFactory {
                     .filter(typeSpec -> strictConstructors.contains(typeSpec.name.toLowerCase()))
                     .collect(Collectors.toList());
 
-            CodeBlock allConstructorsArrayLiteral = allStrictConstructors.stream()
-                    .map(typeSpec -> CodeBlock.of("$N.class", typeSpec))
-                    .collect(CodeBlock.joining(",", "new Class[] {", "}"));
-
-            FieldSpec allConstructors = FieldSpec.builder(ArrayTypeName.of(Class.class), "ALL_CONSTRUCTORS", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                    .initializer(allConstructorsArrayLiteral)
-                    .build();
-
             Function<TypeSpec, String> jsonTypeName = ts -> jsonTypeNamePrefix + CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, ts.name);
 
             ParameterSpec typeNameParam = ParameterSpec.builder(String.class, "typeName").build();
@@ -106,7 +98,6 @@ public final class Derive4Jackson implements ExtensionFactory {
                                     .collect(toList()))
                     .build()
                     .toBuilder()
-                    .addField(allConstructors)
                     .addType(subtypes)
                     .addMethod(typeNameToClass)
                     .build());
