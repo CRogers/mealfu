@@ -8,7 +8,7 @@ import org.derive4j.Visibility;
 public abstract class EventFilter {
     public interface Cases<R> {
         R forEntity(EntityId entityId);
-        R ofType(BasicEventType eventType);
+        R ofType(EventType eventType);
     }
 
     public abstract <R> R match(Cases<R> cases);

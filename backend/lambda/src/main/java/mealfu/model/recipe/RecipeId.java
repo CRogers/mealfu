@@ -3,12 +3,12 @@ package mealfu.model.recipe;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import mealfu.ids.MealfuEntityId;
 import org.immutables.value.Value;
-import uk.callumr.eventstore.core.BasicEventType;
+import uk.callumr.eventstore.core.EventType;
 
 @Value.Immutable
 public abstract class RecipeId extends MealfuEntityId<RecipeEvent> {
     @Override
-    public Class<? extends RecipeEvent> eventClassFor(BasicEventType eventType) {
+    public Class<? extends RecipeEvent> eventClassFor(EventType eventType) {
         return RecipeEvents.typeNameToClass(eventType.asString());
     }
 

@@ -7,7 +7,7 @@ import com.google.common.collect.Iterables;
 import mealfu.RandomStringUtils;
 import mealfu.events.MealfuEvent;
 import org.immutables.value.Value;
-import uk.callumr.eventstore.core.BasicEventType;
+import uk.callumr.eventstore.core.EventType;
 import uk.callumr.eventstore.core.EntityId;
 import uk.callumr.eventstore.core.Event;
 
@@ -17,7 +17,7 @@ import java.util.function.Function;
 public abstract class MealfuEntityId<TEvent extends MealfuEvent<?>> implements EntityId {
     public abstract String entityType();
     public abstract String identifier();
-    public abstract Class<? extends TEvent> eventClassFor(BasicEventType eventType);
+    public abstract Class<? extends TEvent> eventClassFor(EventType eventType);
 
     @Value.Check
     private void verifyFormattedCorrectly() {

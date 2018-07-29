@@ -3,7 +3,7 @@ package mealfu.model.user;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import mealfu.ids.MealfuEntityId;
 import org.immutables.value.Value;
-import uk.callumr.eventstore.core.BasicEventType;
+import uk.callumr.eventstore.core.EventType;
 
 @Value.Immutable
 public abstract class UserId extends MealfuEntityId<UserEvent> {
@@ -14,7 +14,7 @@ public abstract class UserId extends MealfuEntityId<UserEvent> {
     }
 
     @Override
-    public Class<? extends UserEvent> eventClassFor(BasicEventType eventType) {
+    public Class<? extends UserEvent> eventClassFor(EventType eventType) {
         return UserEvents.typeNameToClass(eventType.asString());
     }
 

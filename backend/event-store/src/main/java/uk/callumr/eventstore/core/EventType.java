@@ -3,10 +3,11 @@ package uk.callumr.eventstore.core;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public abstract class BasicEventType {
+public abstract class EventType {
+    public abstract String asString();
 
-    public static BasicEventType of(String eventType) {
-        return ImmutableBasicEventType.builder()
+    public static EventType of(String eventType) {
+        return ImmutableEventType.builder()
                 .asString(eventType)
                 .build();
     }
@@ -18,6 +19,4 @@ public abstract class BasicEventType {
                 .data(data)
                 .build();
     }
-
-    public abstract String asString();
 }

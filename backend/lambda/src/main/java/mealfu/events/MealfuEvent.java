@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import mealfu.ids.MealfuEntityId;
-import uk.callumr.eventstore.core.BasicEventType;
+import uk.callumr.eventstore.core.EventType;
 import uk.callumr.eventstore.core.Event;
 
 import java.io.IOException;
@@ -16,8 +16,8 @@ public interface MealfuEvent<Id extends MealfuEntityId> {
             .registerModule(new Jdk8Module());
 
     @JsonIgnore
-    default BasicEventType eventType() {
-        return BasicEventType.of(getClass().getAnnotation(JsonTypeName.class).value());
+    default EventType eventType() {
+        return EventType.of(getClass().getAnnotation(JsonTypeName.class).value());
     }
 
     default String toJson() {

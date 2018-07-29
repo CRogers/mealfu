@@ -19,7 +19,7 @@ public abstract class EventFilters {
             return this;
         }
 
-        public Builder ofType(BasicEventType eventType) {
+        public Builder ofType(EventType eventType) {
             addFilters(EventFilterImpls.ofType(eventType));
             return this;
         }
@@ -33,7 +33,7 @@ public abstract class EventFilters {
         return builder().forEntity(entityId).build();
     }
 
-    public static EventFilters ofType(BasicEventType eventType) {
+    public static EventFilters ofType(EventType eventType) {
         return builder().ofType(eventType).build();
     }
 }
