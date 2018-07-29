@@ -9,7 +9,7 @@ import uk.callumr.eventstore.core.BasicEventType;
 public abstract class RecipeId extends MealfuEntityId<RecipeEvent> {
     @Override
     public Class<? extends RecipeEvent> eventClassFor(BasicEventType eventType) {
-        return RecipeEvent.classFor(eventType);
+        return RecipeEvents.typeNameToClass(eventType.asString());
     }
 
     @Override

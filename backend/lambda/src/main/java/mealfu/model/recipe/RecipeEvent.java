@@ -4,7 +4,6 @@ import mealfu.events.MealfuEvent;
 import mealfu.model.user.UserId;
 import org.derive4j.Data;
 import uk.callumr.derive4jackson.JsonTypeNamePrefix;
-import uk.callumr.eventstore.core.BasicEventType;
 
 @Data
 @RecipeEvents.AllJsonSubTypes
@@ -17,10 +16,6 @@ public abstract class RecipeEvent implements MealfuEvent<RecipeId> {
     }
 
     public abstract <R> R match(Cases<R> cases);
-
-    static Class<? extends RecipeEvent> classFor(BasicEventType eventType) {
-        return RecipeEvents.typeNameToClass(eventType.asString());
-    }
 
     @Override
     public abstract int hashCode();

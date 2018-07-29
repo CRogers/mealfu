@@ -15,7 +15,7 @@ public abstract class UserId extends MealfuEntityId<UserEvent> {
 
     @Override
     public Class<? extends UserEvent> eventClassFor(BasicEventType eventType) {
-        return UserEvent.classFor(eventType);
+        return UserEvents.typeNameToClass(eventType.asString());
     }
 
     public static UserId of(String id) {
