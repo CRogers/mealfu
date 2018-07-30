@@ -1,18 +1,33 @@
 package uk.callumr.eventstore.core;
 
+import one.util.streamex.EntryStream;
 import org.immutables.value.Value;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Value.Immutable
 public abstract class Events {
     public abstract EventToken eventToken();
-    protected abstract Map<EntityId, Stream<Event>> eventStreams();
+    protected abstract Stream<Event> consecutiveEventStreams();
 
-    public Stream<Event> eventsFor(EntityId entityId) {
-        return Optional.ofNullable(eventStreams().get(entityId))
-                .orElseThrow(() -> new IllegalArgumentException(entityId + " does not have a corresponding event stream"));
+    public EntryStream<EntityId, Stream<Event>> eventStreams() {
+        return EntryStream.of(consecutiveEventStreams()
+                .map(event -> ImmutableEntityIdAnd.of(event.entityId(), event)))
+                .collapseKeys(Collectors.toList()) // This can be made way more lazy by not using collapseKeys
+                .mapValues(Collection::stream);
+    }
+
+    @Value.Immutable
+    interface EntityIdAnd<V> extends Map.Entry<EntityId, V> {
+        @Value.Parameter EntityId getKey();
+        @Value.Parameter V getValue();
+
+        @Override
+        default V setValue(V value) {
+            throw new UnsupportedOperationException();
+        }
     }
 }
