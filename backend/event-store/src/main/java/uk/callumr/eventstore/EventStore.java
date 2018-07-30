@@ -1,8 +1,6 @@
 package uk.callumr.eventstore;
 
-import uk.callumr.eventstore.core.Event;
-import uk.callumr.eventstore.core.EventFilters;
-import uk.callumr.eventstore.core.VersionedEvent;
+import uk.callumr.eventstore.core.*;
 
 import java.util.Arrays;
 import java.util.function.Function;
@@ -16,6 +14,10 @@ public interface EventStore {
     }
 
     Stream<VersionedEvent> events(EventFilters filters);
+
+    default Events events(EventFilter2 eventFilter2) {
+        throw new RuntimeException();
+    }
 
     void withEvents(EventFilters filters, Function<Stream<VersionedEvent>, Stream<Event>> projectionFunc);
 
