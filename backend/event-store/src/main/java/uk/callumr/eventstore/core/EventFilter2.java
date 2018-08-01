@@ -3,7 +3,6 @@ package uk.callumr.eventstore.core;
 import com.google.common.base.Preconditions;
 import org.immutables.value.Value;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BinaryOperator;
@@ -31,18 +30,7 @@ public abstract class EventFilter2 {
             Function<Set<EventType>, T> eventTypesCondition) {
 
         return filters().stream()
-                .map(eventFilter -> {
-                    List<T> conditions = new ArrayList<>(2);
-                    if (!eventFilter.entityIds().isEmpty()) {
-                        conditions.add(entityIdsCondition.apply(eventFilter.entityIds()));
-                    }
-                    if (!eventFilter.eventTypes().isEmpty()) {
-                        conditions.add(eventTypesCondition.apply(eventFilter.eventTypes()));
-                    }
-                    return conditions.stream()
-                            .reduce(and)
-                            .orElseThrow(() -> new IllegalArgumentException("Filters must contain at least one entity id"));
-                })
+                .map(eventFilter -> eventFilter.toCondition(and, entityIdsCondition, eventTypesCondition))
                 .reduce(or)
                 .orElseThrow(() -> new IllegalArgumentException("Must narrow search to at least one filter"));
     }
