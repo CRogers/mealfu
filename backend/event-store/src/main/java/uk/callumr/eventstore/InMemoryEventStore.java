@@ -7,7 +7,10 @@ import uk.callumr.eventstore.core.internal.EventId;
 import uk.callumr.eventstore.inmemory.EasyReadWriteLock;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -87,19 +90,11 @@ public class InMemoryEventStore implements EventStore {
     }
 
     private Stream<VersionedEvent> eventsUnlocked2(EventFilter2 eventFilters) {
-        Predicate<Event> eventPredicate = eventFilters.filters().stream().reduce(
-                event -> false,
-                (predicate, eventFilter) -> {
-                    Predicate<Event> filterPredicate = event -> true;
-                    if (!eventFilter.entityIds().isEmpty()) {
-                        filterPredicate = filterPredicate.and(event -> eventFilter.entityIds().contains(event.entityId()));
-                    }
-                    if (!eventFilter.eventTypes().isEmpty()) {
-                        filterPredicate = filterPredicate.and(event -> eventFilter.eventTypes().contains(event.eventType()));
-                    }
-                    return predicate.or(filterPredicate);
-                },
-                Predicate::or);
+        Predicate<Event> eventPredicate = eventFilters.toCondition(
+                Predicate::and,
+                Predicate::or,
+                entityIds -> event -> entityIds.contains(event.entityId()),
+                eventTypes -> event -> eventTypes.contains(event.eventType()));
 
         return events.stream()
                 .filter(versionedEvent -> eventPredicate.test(versionedEvent.event()));

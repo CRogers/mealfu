@@ -15,8 +15,6 @@ import uk.callumr.eventstore.core.internal.EventId;
 import uk.callumr.eventstore.jooq.JooqUtils;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BinaryOperator;
@@ -199,25 +197,15 @@ public class PostgresEventStore implements EventStore {
     }
 
     private Condition eventFiltersToCondition2(EventFilter2 eventFilters) {
-        return eventFilters.filters().stream()
-                .map(eventFilter -> {
-                    List<Condition> conditions = new ArrayList<>(2);
-                    if (!eventFilter.entityIds().isEmpty()) {
-                        conditions.add(ENTITY_ID.in(eventFilter.entityIds().stream()
-                                .map(EntityId::asString)
-                                .collect(Collectors.toList())));
-                    }
-                    if (!eventFilter.eventTypes().isEmpty()) {
-                        conditions.add(EVENT_TYPE.in(eventFilter.eventTypes().stream()
-                                .map(EventType::asString)
-                                .collect(Collectors.toList())));
-                    }
-                    return conditions.stream()
-                            .reduce(Condition::and)
-                            .orElseThrow(() -> new IllegalArgumentException("Filters must contain at least one entity id"));
-                })
-                .reduce(Condition::or)
-                .orElseThrow(() -> new IllegalArgumentException("Must narrow search to at least one filter"));
+        return eventFilters.toCondition(
+                Condition::and,
+                Condition::or,
+                entityIds -> ENTITY_ID.in(entityIds.stream()
+                        .map(EntityId::asString)
+                        .collect(Collectors.toList())),
+                eventTypes -> EVENT_TYPE.in(eventTypes.stream()
+                        .map(EventType::asString)
+                        .collect(Collectors.toList())));
     }
 
     private Condition eventFiltersToCondition(EventFilters filters) {
