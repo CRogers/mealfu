@@ -20,6 +20,12 @@ public abstract class Events {
                 .mapValues(Collection::stream);
     }
 
+    public static class Builder extends ImmutableEvents.Builder { }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Value.Immutable
     interface EntityIdAnd<V> extends Map.Entry<EntityId, V> {
         @Value.Parameter EntityId getKey();

@@ -1,5 +1,6 @@
 package uk.callumr.eventstore.core;
 
+import com.google.common.base.Preconditions;
 import org.immutables.value.Value;
 
 import java.util.List;
@@ -8,15 +9,14 @@ import java.util.List;
 public abstract class EventFilter2 {
     public abstract List<EventFilter3> filters();
 
-    static class Builder extends ImmutableEventFilter2.Builder { }
-
-    static EventFilter3 forEntities(EntityId... entityIds) {
-        return EventFilter3.builder()
-                .addEntityIds(entityIds)
-                .build();
+    @Value.Check
+    protected void check() {
+        Preconditions.checkArgument(!filters().isEmpty(), "Must have at least one filter");
     }
 
-    static EventFilter3 forEntity(EntityId entityId) {
-        return forEntities(entityId);
+    public static class Builder extends ImmutableEventFilter2.Builder { }
+
+    public static Builder builder() {
+        return new Builder();
     }
 }

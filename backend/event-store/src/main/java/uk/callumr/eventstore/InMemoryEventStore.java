@@ -3,6 +3,7 @@ package uk.callumr.eventstore;
 import com.evanlennick.retry4j.CallExecutor;
 import com.evanlennick.retry4j.config.RetryConfigBuilder;
 import uk.callumr.eventstore.core.*;
+import uk.callumr.eventstore.core.internal.EventId;
 import uk.callumr.eventstore.inmemory.EasyReadWriteLock;
 
 import java.time.Duration;
@@ -22,6 +23,16 @@ public class InMemoryEventStore implements EventStore {
     @Override
     public void addEvents(Stream<Event> events) {
         lock.write_(() -> events.forEach(this::addEventUnlocked));
+    }
+
+    @Override
+    public Events events(EventFilter2 eventFilters) {
+        Stream<Event> eventStream = eventsUnlocked2(eventFilters)
+                .map(VersionedEvent::event);
+        return Events.builder()
+                .consecutiveEventStreams(eventStream)
+                .eventToken(EventToken.of(EventId.of(-999L)))
+                .build();
     }
 
     @Override
@@ -73,6 +84,25 @@ public class InMemoryEventStore implements EventStore {
                         .build())
                 .build()
         );
+    }
+
+    private Stream<VersionedEvent> eventsUnlocked2(EventFilter2 eventFilters) {
+        Predicate<Event> eventPredicate = eventFilters.filters().stream().reduce(
+                event -> false,
+                (predicate, eventFilter) -> {
+                    Predicate<Event> filterPredicate = event -> true;
+                    if (!eventFilter.entityIds().isEmpty()) {
+                        filterPredicate = filterPredicate.and(event -> eventFilter.entityIds().contains(event.entityId()));
+                    }
+                    if (!eventFilter.eventTypes().isEmpty()) {
+                        filterPredicate = filterPredicate.and(event -> eventFilter.eventTypes().contains(event.eventType()));
+                    }
+                    return predicate.or(filterPredicate);
+                },
+                Predicate::or);
+
+        return events.stream()
+                .filter(versionedEvent -> eventPredicate.test(versionedEvent.event()));
     }
 
     private Stream<VersionedEvent> eventsUnlocked(EventFilters filters) {

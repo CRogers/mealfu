@@ -29,9 +29,9 @@ public abstract class EventStoreShould {
         Event event = EVENT_TYPE.newEvent(JAMES, EVENT_DATA);
         eventStore.addEvents(event);
 
-        Stream<VersionedEvent> events = eventStore.events(forEntity(JAMES));
+        Stream<Event> events = eventStore.eventsFor(JAMES);
 
-        assertThatSteamContainsEvents(events, event);
+        assertThat(events).containsExactly(event);
     }
 
     @Test
