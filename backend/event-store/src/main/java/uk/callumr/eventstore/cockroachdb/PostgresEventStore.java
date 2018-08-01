@@ -11,15 +11,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.callumr.eventstore.EventStore;
 import uk.callumr.eventstore.core.*;
+import uk.callumr.eventstore.core.internal.EventId;
 import uk.callumr.eventstore.jooq.JooqUtils;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PostgresEventStore implements EventStore {
@@ -76,6 +80,24 @@ public class PostgresEventStore implements EventStore {
                 .where(condition))
                 .stream()
                 .map(this::toVersionedEvent));
+    }
+
+    @Override
+    public Events events(EventFilter2 eventFilters) {
+        Condition condition = eventFiltersToCondition2(eventFilters);
+
+        Stream<Event> eventStream = transactionResult(dsl -> logSQL(dsl
+                .select(VERSION, ENTITY_ID, EVENT_TYPE, DATA)
+                .from(eventsTable)
+                .where(condition))
+                .stream()
+                .map(this::toVersionedEvent))
+                .map(VersionedEvent::event);
+
+        return Events.builder()
+                .consecutiveEventStreams(eventStream)
+                .eventToken(EventToken.of(EventId.of(-999)))
+                .build();
     }
 
     @Override
@@ -174,6 +196,28 @@ public class PostgresEventStore implements EventStore {
 
     private InsertValuesStep3<Record, String, String, String> insertEvent(InsertValuesStep3<Record, String, String, String> iv, Event event) {
         return iv.values(event.entityId().asString(), event.eventType().asString(), event.data());
+    }
+
+    private Condition eventFiltersToCondition2(EventFilter2 eventFilters) {
+        return eventFilters.filters().stream()
+                .map(eventFilter -> {
+                    List<Condition> conditions = new ArrayList<>(2);
+                    if (!eventFilter.entityIds().isEmpty()) {
+                        conditions.add(ENTITY_ID.in(eventFilter.entityIds().stream()
+                                .map(EntityId::asString)
+                                .collect(Collectors.toList())));
+                    }
+                    if (!eventFilter.eventTypes().isEmpty()) {
+                        conditions.add(EVENT_TYPE.in(eventFilter.eventTypes().stream()
+                                .map(EventType::asString)
+                                .collect(Collectors.toList())));
+                    }
+                    return conditions.stream()
+                            .reduce(Condition::and)
+                            .orElseThrow(() -> new IllegalArgumentException("Filters must contain at least one entity id"));
+                })
+                .reduce(Condition::or)
+                .orElseThrow(() -> new IllegalArgumentException("Must narrow search to at least one filter"));
     }
 
     private Condition eventFiltersToCondition(EventFilters filters) {
