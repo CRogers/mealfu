@@ -17,7 +17,11 @@ public interface EventStore {
     }
 
     default SingleEvents eventsFor(EntityId entityId, EventType... eventTypes) {
-        Events events = events(EventFilter3.forEntity(entityId).ofTypes(eventTypes));
+        return events(EventFilter3.forEntity(entityId).ofTypes(eventTypes));
+    }
+
+    default SingleEvents events(SingleEventFilter singleEventFilter) {
+        Events events = events(singleEventFilter.toMultiFilter());
 
         Stream<Event> eventStream = events
                 .eventStreams()

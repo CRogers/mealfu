@@ -32,8 +32,10 @@ public abstract class EventFilter3 {
                 .build();
     }
 
-    public static EventFilter3 forEntity(EntityId entityId) {
-        return forEntities(entityId);
+    public static SingleEventFilter forEntity(EntityId entityId) {
+        return SingleEventFilter.builder()
+                .entityId(entityId)
+                .build();
     }
 
     public EventFilter3 ofTypes(EventType... eventTypes) {
