@@ -104,7 +104,7 @@ public class PostgresEventStore implements EventStore {
     }
 
     @Override
-    public void withEvents(EventFilter3 eventFilter, Function<EntryStream<EntityId, Event>, Stream<Event>> projectionFunc) {
+    public void withEvents(EventFilter3 eventFilter, Function<EntryStream<EntityId, Stream<Event>>, Stream<Event>> projectionFunc) {
         throw new UnsupportedOperationException();
     }
 

@@ -39,5 +39,15 @@ public interface EventStore {
 
     void withEvents(EventFilters filters, Function<Stream<VersionedEvent>, Stream<Event>> projectionFunc);
 
-    void withEvents(EventFilter3 eventFilter, Function<EntryStream<EntityId, Event>, Stream<Event>> projectionFunc);
+    default void withEvents(SingleEventFilter singleEventFilter, Function<Stream<Event>, Stream<Event>> projectionFunc) {
+        withEvents(singleEventFilter.toMultiFilter(), manyEventStreams -> {
+            Stream<Event> events = manyEventStreams.findFirst()
+                    .map(Map.Entry::getValue)
+                    .orElseGet(Stream::empty);
+
+            return projectionFunc.apply(events);
+        });
+    }
+
+    void withEvents(EventFilter3 eventFilter, Function<EntryStream<EntityId, Stream<Event>>, Stream<Event>> projectionFunc);
 }

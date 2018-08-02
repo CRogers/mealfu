@@ -51,9 +51,7 @@ public class InMemoryEventStore implements EventStore {
     }
 
     @Override
-    public void withEvents(EventFilter3 eventFilter, Function<EntryStream<EntityId, Event>, Stream<Event>> projectionFunc) {
-        Predicate<Event> predicate = eventFiltersToPredicate(eventFilter);
-
+    public void withEvents(EventFilter3 eventFilter, Function<EntryStream<EntityId, Stream<Event>>, Stream<Event>> projectionFunc) {
         throw new UnsupportedOperationException();
     }
 
