@@ -30,7 +30,7 @@ public class InMemoryEventStore implements EventStore {
 
     @Override
     public Events events(EventFilter3 eventFilter) {
-        Stream<Event> eventStream = eventsUnlocked2(eventFilter)
+        Stream<Event> eventStream = eventsUnlocked(filterToPredicate(eventFilter))
                 .map(VersionedEvent::event);
 
         return Events.builder()
@@ -39,7 +39,7 @@ public class InMemoryEventStore implements EventStore {
                 .build();
     }
 
-    private Stream<VersionedEvent> oldEvents(Predicate<Event> predicate) {
+    private Stream<VersionedEvent> events(Predicate<Event> predicate) {
         return lock.read(() -> eventsUnlocked(predicate));
     }
 
@@ -58,7 +58,7 @@ public class InMemoryEventStore implements EventStore {
                 .retryOnSpecificExceptions(ConcurrentModificationException.class)
                 .build())
                 .execute(() -> {
-                    Stream<VersionedEvent> events = oldEvents(predicate);
+                    Stream<VersionedEvent> events = events(predicate);
 
                     AtomicReference<Optional<Long>> lastVersion = new AtomicReference<>(Optional.empty());
 
@@ -70,7 +70,7 @@ public class InMemoryEventStore implements EventStore {
                             .collect(Collectors.toList());
 
                     lock.write_(() -> {
-                        long mostRecentEventVersion = oldEvents(predicate)
+                        long mostRecentEventVersion = events(predicate)
                                 .map(VersionedEvent::version)
                                 .reduce((a, b) -> b)
                                 .orElse(Long.MIN_VALUE);
@@ -86,8 +86,8 @@ public class InMemoryEventStore implements EventStore {
                 });
     }
 
-    private boolean addEventUnlocked(Event event) {
-        return events.add(VersionedEvent.builder()
+    private void addEventUnlocked(Event event) {
+        events.add(VersionedEvent.builder()
                 .version(version.getAndIncrement())
                 .event(Event.builder()
                         .entityId(event.entityId())
@@ -98,14 +98,11 @@ public class InMemoryEventStore implements EventStore {
         );
     }
 
-    private Stream<VersionedEvent> eventsUnlocked2(EventFilter3 eventFilter) {
-        Predicate<Event> eventPredicate = eventFilter.toCondition(
+    private Predicate<Event> filterToPredicate(EventFilter3 eventFilter) {
+        return eventFilter.toCondition(
                 Predicate::and,
                 entityIds -> event -> entityIds.contains(event.entityId()),
                 eventTypes -> event -> eventTypes.contains(event.eventType()));
-
-        return events.stream()
-                .filter(versionedEvent -> eventPredicate.test(versionedEvent.event()));
     }
 
     private Stream<VersionedEvent> eventsUnlocked(Predicate<Event> eventPredicate) {
@@ -120,16 +117,4 @@ public class InMemoryEventStore implements EventStore {
                 eventTypes -> event -> eventTypes.contains(event.eventType()));
     }
 
-    private Predicate<Event> oldEventFiltersToPredicate(EventFilters filters) {
-        return filters.stream().reduce(
-                event -> false,
-                (predicate, eventFilter) -> predicate.or(EventFilter.caseOf(eventFilter)
-                        .forEntity(eventValueEqualTo(Event::entityId))
-                        .ofType(eventValueEqualTo(Event::eventType))),
-                Predicate::or);
-    }
-
-    private static <T> Function<T, Predicate<Event>> eventValueEqualTo(Function<Event, T> extractor) {
-        return value -> event -> value.equals(extractor.apply(event));
-    }
 }

@@ -51,15 +51,16 @@ public class PostgresEventStore implements EventStore {
     }
 
     private static void createTablesUnlessExists(Table<Record> eventsTable, DSLContext dslContext) {
-        logSQL(dslContext.createTableIfNotExists(eventsTable)
+        dslContext.createTableIfNotExists(eventsTable)
                 .column(VERSION)
                 .column(ENTITY_ID)
                 .column(EVENT_TYPE)
                 .column(DATA)
-                .constraint(DSL.primaryKey(VERSION))).execute();
+                .constraint(DSL.primaryKey(VERSION))
+                .execute();
 
-        logSQL(dslContext.createIndexIfNotExists("entityId")
-                .on(eventsTable, ENTITY_ID, VERSION))
+        dslContext.createIndexIfNotExists("entityId")
+                .on(eventsTable, ENTITY_ID, VERSION)
                 .execute();
     }
 
@@ -72,12 +73,12 @@ public class PostgresEventStore implements EventStore {
     public Events events(EventFilter3 eventFilter) {
         Condition condition = eventFiltersToCondition2(eventFilter);
 
-        Stream<Event> eventStream = transactionResult(dsl -> logSQL(dsl
+        Stream<Event> eventStream = transactionResult(dsl -> dsl
                 .select(VERSION, ENTITY_ID, EVENT_TYPE, DATA)
                 .from(eventsTable)
                 .where(condition))
                 .stream()
-                .map(this::toVersionedEvent))
+                .map(this::toVersionedEvent)
                 .map(VersionedEvent::event);
 
         return Events.builder()
@@ -105,10 +106,10 @@ public class PostgresEventStore implements EventStore {
 
     private int withEventsInner(Condition condition, Function<EntryStream<EntityId, Stream<Event>>, Stream<Event>> projectionFunc) {
         Stream<VersionedEvent> events = transactionResult(dsl -> {
-            return logSQL(dsl
+            return dsl
                     .select(VERSION, ENTITY_ID, EVENT_TYPE, DATA)
                     .from(eventsTable)
-                    .where(condition))
+                    .where(condition)
                     .stream()
                     .map(this::toVersionedEvent);
         });
@@ -128,7 +129,7 @@ public class PostgresEventStore implements EventStore {
                 DSL.row(event.entityId().asString(), event.eventType().asString(), event.data()));
 
         return transactionResult(dsl -> {
-            return logSQL(dsl.insertInto(eventsTable)
+            return dsl.insertInto(eventsTable)
                     .columns(ENTITY_ID, EVENT_TYPE, DATA)
                     .select(this.<Record3<String, String, String>>selectStar(dsl)
                             .from(values)
@@ -136,7 +137,7 @@ public class PostgresEventStore implements EventStore {
                                     .selectOne()
                                     .from(eventsTable)
                                     .where(versionSearch)
-                                    .and(condition))))
+                                    .and(condition)))
                     .execute();
         });
     }
@@ -144,7 +145,7 @@ public class PostgresEventStore implements EventStore {
     private <R> R transactionResult(Function<DSLContext, R> func) {
         return jooq().transactionResult(configuration -> {
             DSLContext dsl = DSL.using(configuration);
-            logSQL(dsl.query("set transaction isolation level serializable")).execute();
+            dsl.query("set transaction isolation level serializable").execute();
             return func.apply(dsl);
         });
     }
@@ -162,11 +163,11 @@ public class PostgresEventStore implements EventStore {
     }
 
     private void insertEvents(DSLContext dsl, Stream<Event> events) {
-        logSQL(events
+        events
                 .reduce(
                         dsl.insertInto(eventsTable).columns(ENTITY_ID, EVENT_TYPE, DATA),
                         this::insertEvent,
-                        throwErrorOnParallelCombine()))
+                        throwErrorOnParallelCombine())
                 .execute();
     }
 
@@ -174,11 +175,6 @@ public class PostgresEventStore implements EventStore {
         return (a, b) -> {
             throw new RuntimeException();
         };
-    }
-
-    private static <T extends Query> T logSQL(T query) {
-//        log.debug(query.getSQL(ParamType.INLINED));
-        return query;
     }
 
     private InsertValuesStep3<Record, String, String, String> insertEvent(InsertValuesStep3<Record, String, String, String> iv, Event event) {
@@ -194,16 +190,6 @@ public class PostgresEventStore implements EventStore {
                 eventTypes -> EVENT_TYPE.in(eventTypes.stream()
                         .map(EventType::asString)
                         .collect(Collectors.toList())));
-    }
-
-    private Condition eventFiltersToCondition(EventFilters filters) {
-        EventFilter eventFilter = filters.stream()
-                .findFirst()
-                .get();
-
-        return EventFilter.caseOf(eventFilter)
-                .forEntity(entityId -> ENTITY_ID.equal(entityId.asString()))
-                .ofType(eventType -> EVENT_TYPE.equal(eventType.asString()));
     }
 
     private VersionedEvent toVersionedEvent(Record4<Long, String, String, String> record) {
