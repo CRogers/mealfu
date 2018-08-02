@@ -18,15 +18,17 @@ public interface EventStore {
     Stream<VersionedEvent> events(EventFilters filters);
 
     default SingleEvents eventsFor(EntityId entityId, EventType... eventTypes) {
-        Stream<Event> events = events(EventFilter3.forEntity(entityId).ofTypes(eventTypes))
+        Events events = events(EventFilter3.forEntity(entityId).ofTypes(eventTypes));
+
+        Stream<Event> eventStream = events
                 .eventStreams()
                 .findFirst()
                 .map(Map.Entry::getValue)
                 .orElseGet(Stream::empty);
 
         return SingleEvents.builder()
-                .events(events)
-                .eventToken(EventToken.unimplemented())
+                .events(eventStream)
+                .eventToken(events.eventToken())
                 .build();
     }
 

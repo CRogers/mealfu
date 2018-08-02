@@ -5,12 +5,13 @@ import org.immutables.value.Value;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Value.Immutable
 public abstract class Events {
-    public abstract EventToken eventToken();
+    public abstract Optional<EventToken> eventToken();
     protected abstract Stream<Event> consecutiveEventStreams();
 
     public EntryStream<EntityId, Stream<Event>> eventStreams() {
