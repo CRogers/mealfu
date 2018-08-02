@@ -3,7 +3,6 @@ package mealfu.testing;
 import mealfu.auth.UserAuthorizer;
 import uk.callumr.eventstore.EventStore;
 import uk.callumr.eventstore.core.BasicEntityId;
-import uk.callumr.eventstore.core.EventFilters;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -32,7 +31,7 @@ public class TestService {
     @Path("db")
     @GET
     public String db() {
-        long numEvents = eventStore.events(EventFilters.forEntity(BasicEntityId.random()))
+        long numEvents = eventStore.eventsFor(BasicEntityId.random()).events()
                 .count();
 
         return numEvents + " events";

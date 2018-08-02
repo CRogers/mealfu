@@ -42,6 +42,10 @@ public class InMemoryEventStore implements EventStore {
         return lock.read(() -> eventsUnlocked(filters));
     }
 
+    private Stream<VersionedEvent> oldEvents(EventFilters filters) {
+        return lock.read(() -> eventsUnlocked(filters));
+    }
+
     @Override
     public void withEvents(EventFilters filters, Function<Stream<VersionedEvent>, Stream<Event>> projectionFunc) {
         new CallExecutor<>(new RetryConfigBuilder()
@@ -51,7 +55,7 @@ public class InMemoryEventStore implements EventStore {
                 .retryOnSpecificExceptions(ConcurrentModificationException.class)
                 .build())
                 .execute(() -> {
-                    Stream<VersionedEvent> events = events(filters);
+                    Stream<VersionedEvent> events = oldEvents(filters);
 
                     AtomicReference<Optional<Long>> lastVersion = new AtomicReference<>(Optional.empty());
 
@@ -60,7 +64,7 @@ public class InMemoryEventStore implements EventStore {
                             .collect(Collectors.toList());
 
                     lock.write_(() -> {
-                        long mostRecentEventVersion = events(filters)
+                        long mostRecentEventVersion = oldEvents(filters)
                                 .map(VersionedEvent::version)
                                 .reduce((a, b) -> b)
                                 .orElse(Long.MIN_VALUE);
