@@ -31,10 +31,9 @@ public interface EventStore {
                 .build();
     }
 
-    default Events events(EventFilter3 eventFilter, EventFilter3... eventFilters) {
+    default Events events(EventFilter3 eventFilter) {
         return events(EventFilter2.builder()
                 .addFilters(eventFilter)
-                .addFilters(eventFilters)
                 .build());
     }
 
