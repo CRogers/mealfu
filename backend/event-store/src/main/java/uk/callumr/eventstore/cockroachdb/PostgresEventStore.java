@@ -69,8 +69,8 @@ public class PostgresEventStore implements EventStore {
     }
 
     @Override
-    public Events events(EventFilter2 eventFilters) {
-        Condition condition = eventFiltersToCondition2(eventFilters);
+    public Events events(EventFilter3 eventFilter) {
+        Condition condition = eventFiltersToCondition2(eventFilter);
 
         Stream<Event> eventStream = transactionResult(dsl -> logSQL(dsl
                 .select(VERSION, ENTITY_ID, EVENT_TYPE, DATA)
@@ -104,9 +104,7 @@ public class PostgresEventStore implements EventStore {
     }
 
     @Override
-    public void withEvents(EventFilter2 eventFilters, Function<EntryStream<EntityId, Event>, Stream<Event>> projectionFunc) {
-        Condition condition = eventFiltersToCondition2(eventFilters);
-
+    public void withEvents(EventFilter3 eventFilter, Function<EntryStream<EntityId, Event>, Stream<Event>> projectionFunc) {
         throw new UnsupportedOperationException();
     }
 
@@ -191,10 +189,9 @@ public class PostgresEventStore implements EventStore {
         return iv.values(event.entityId().asString(), event.eventType().asString(), event.data());
     }
 
-    private Condition eventFiltersToCondition2(EventFilter2 eventFilters) {
-        return eventFilters.toCondition(
+    private Condition eventFiltersToCondition2(EventFilter3 eventFilter) {
+        return eventFilter.toCondition(
                 Condition::and,
-                Condition::or,
                 entityIds -> ENTITY_ID.in(entityIds.stream()
                         .map(EntityId::asString)
                         .collect(Collectors.toList())),

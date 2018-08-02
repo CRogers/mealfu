@@ -31,17 +31,9 @@ public interface EventStore {
                 .build();
     }
 
-    default Events events(EventFilter3 eventFilter) {
-        return events(EventFilter2.builder()
-                .addFilters(eventFilter)
-                .build());
-    }
-
-    default Events events(EventFilter2 eventFilters) {
-        throw new UnsupportedOperationException();
-    }
+    Events events(EventFilter3 eventFilter);
 
     void withEvents(EventFilters filters, Function<Stream<VersionedEvent>, Stream<Event>> projectionFunc);
 
-    void withEvents(EventFilter2 eventFilters, Function<EntryStream<EntityId, Event>, Stream<Event>> projectionFunc);
+    void withEvents(EventFilter3 eventFilter, Function<EntryStream<EntityId, Event>, Stream<Event>> projectionFunc);
 }

@@ -39,11 +39,6 @@ public class InMemoryEventStore implements EventStore {
                 .build();
     }
 
-    @Override
-    public Events events(EventFilter2 eventFilters) {
-        throw new UnsupportedOperationException();
-    }
-
     private Stream<VersionedEvent> oldEvents(Predicate<Event> predicate) {
         return lock.read(() -> eventsUnlocked(predicate));
     }
@@ -56,8 +51,8 @@ public class InMemoryEventStore implements EventStore {
     }
 
     @Override
-    public void withEvents(EventFilter2 eventFilters, Function<EntryStream<EntityId, Event>, Stream<Event>> projectionFunc) {
-        Predicate<Event> predicate = eventFiltersToPredicate(eventFilters);
+    public void withEvents(EventFilter3 eventFilter, Function<EntryStream<EntityId, Event>, Stream<Event>> projectionFunc) {
+        Predicate<Event> predicate = eventFiltersToPredicate(eventFilter);
 
         throw new UnsupportedOperationException();
     }
@@ -122,10 +117,9 @@ public class InMemoryEventStore implements EventStore {
                 .filter(versionedEvent -> eventPredicate.test(versionedEvent.event()));
     }
 
-    private Predicate<Event> eventFiltersToPredicate(EventFilter2 eventFilters) {
+    private Predicate<Event> eventFiltersToPredicate(EventFilter3 eventFilters) {
         return eventFilters.toCondition(
                 Predicate::and,
-                Predicate::or,
                 entityIds -> event -> entityIds.contains(event.entityId()),
                 eventTypes -> event -> eventTypes.contains(event.eventType()));
     }
