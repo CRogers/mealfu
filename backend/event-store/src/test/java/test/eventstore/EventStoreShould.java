@@ -12,7 +12,6 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.callumr.eventstore.core.EventFilters.forEntity;
-import static uk.callumr.eventstore.core.EventFilters.ofType;
 
 public abstract class EventStoreShould {
     private static final BasicEntityId JAMES = BasicEntityId.of("james");
@@ -46,9 +45,9 @@ public abstract class EventStoreShould {
         eventStore.addEvents(jamesEvent1);
         eventStore.addEvents(jamesEvent2);
 
-        Stream<VersionedEvent> events = eventStore.events(forEntity(JAMES));
+        Stream<Event> events = eventStore.eventsFor(JAMES).events();
 
-        assertThatSteamContainsEvents(events,
+        assertThat(events).containsExactly(
                 jamesEvent1,
                 jamesEvent2);
     }
@@ -61,22 +60,22 @@ public abstract class EventStoreShould {
         eventStore.addEvents(jamesEvent);
         eventStore.addEvents(alexEvent);
 
-        Stream<VersionedEvent> events = eventStore.events(forEntity(JAMES));
+        Stream<Event> events = eventStore.eventsFor(JAMES).events();
 
-        assertThatSteamContainsEvents(events, jamesEvent);
+        assertThat(events).containsExactly(jamesEvent);
     }
 
     @Test
-    public void get_events_with_filter_for_just_event_type() {
+    public void get_events_with_filter_for_just_entity_id_and_event_type() {
         Event someEvent = Event.of(JAMES, EVENT_TYPE, EVENT_DATA);
         Event otherEvent = Event.of(JAMES, OTHER_EVENT_TYPE, EVENT_DATA);
 
         eventStore.addEvents(someEvent);
         eventStore.addEvents(otherEvent);
 
-        Stream<VersionedEvent> events = eventStore.events(ofType(EVENT_TYPE));
+        Stream<Event> events = eventStore.eventsFor(JAMES, EVENT_TYPE).events();
 
-        assertThatSteamContainsEvents(events, someEvent);
+        assertThat(events).containsExactly(someEvent);
     }
 
     @Test
@@ -99,7 +98,7 @@ public abstract class EventStoreShould {
             return Stream.of(event4);
         });
 
-        assertThatSteamContainsEvents(eventStore.events(ofType(OTHER_EVENT_TYPE)), event4);
+        assertThat(eventStore.eventsFor(ALEX, OTHER_EVENT_TYPE).events()).containsExactly(event4);
     }
 
     @Test
@@ -120,7 +119,7 @@ public abstract class EventStoreShould {
             return Stream.of(Event.of(ALEX, EVENT_TYPE, Long.toString(count)));
         });
 
-        assertThatSteamContainsEvents(eventStore.events(forEntity(ALEX)),
+        assertThat(eventStore.eventsFor(ALEX).events()).containsExactly(
                 Event.of(ALEX, EVENT_TYPE, "2"));
     }
 
