@@ -15,8 +15,6 @@ public interface EventStore {
         addEvents(Arrays.stream(events));
     }
 
-    Stream<VersionedEvent> events(EventFilters filters);
-
     default SingleEvents eventsFor(EntityId entityId, EventType... eventTypes) {
         Events events = events(EventFilter3.forEntity(entityId).ofTypes(eventTypes));
 
