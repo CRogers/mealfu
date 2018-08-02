@@ -37,8 +37,6 @@ public interface EventStore {
 
     Events events(EventFilter3 eventFilter);
 
-    void withEvents(EventFilters filters, Function<Stream<VersionedEvent>, Stream<Event>> projectionFunc);
-
     default void withEvents(SingleEventFilter singleEventFilter, Function<Stream<Event>, Stream<Event>> projectionFunc) {
         withEvents(singleEventFilter.toMultiFilter(), manyEventStreams -> {
             Stream<Event> events = manyEventStreams.findFirst()

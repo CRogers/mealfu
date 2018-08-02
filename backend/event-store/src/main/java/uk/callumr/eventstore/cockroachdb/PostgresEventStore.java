@@ -87,8 +87,8 @@ public class PostgresEventStore implements EventStore {
     }
 
     @Override
-    public void withEvents(EventFilters filters, Function<Stream<VersionedEvent>, Stream<Event>> projectionFunc) {
-        Condition condition = eventFiltersToCondition(filters);
+    public void withEvents(EventFilter3 eventFilter, Function<EntryStream<EntityId, Stream<Event>>, Stream<Event>> projectionFunc) {
+        Condition condition = eventFiltersToCondition2(eventFilter);
 
         new CallExecutor<>(new RetryConfigBuilder()
                 .withMaxNumberOfTries(MAX_TRIES)
@@ -103,12 +103,7 @@ public class PostgresEventStore implements EventStore {
                 });
     }
 
-    @Override
-    public void withEvents(EventFilter3 eventFilter, Function<EntryStream<EntityId, Stream<Event>>, Stream<Event>> projectionFunc) {
-        throw new UnsupportedOperationException();
-    }
-
-    private int withEventsInner(Condition condition, Function<Stream<VersionedEvent>, Stream<Event>> projectionFunc) {
+    private int withEventsInner(Condition condition, Function<EntryStream<EntityId, Stream<Event>>, Stream<Event>> projectionFunc) {
         Stream<VersionedEvent> events = transactionResult(dsl -> {
             return logSQL(dsl
                     .select(VERSION, ENTITY_ID, EVENT_TYPE, DATA)
@@ -120,8 +115,9 @@ public class PostgresEventStore implements EventStore {
 
         AtomicReference<Optional<Long>> lastVersion = new AtomicReference<>(Optional.empty());
 
-        Stream<Event> apply = projectionFunc.apply(events
-                .peek(event -> lastVersion.set(Optional.of(event.version()))));
+        Stream<Event> apply = projectionFunc.apply(Events.consecutiveEventsToEntryStream(events
+                .peek(event -> lastVersion.set(Optional.of(event.version())))
+                .map(VersionedEvent::event)));
 
         Condition versionSearch = lastVersion.get()
                 .map(VERSION::greaterThan)

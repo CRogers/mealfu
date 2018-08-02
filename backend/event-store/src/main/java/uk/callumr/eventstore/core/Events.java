@@ -4,7 +4,6 @@ import one.util.streamex.EntryStream;
 import org.immutables.value.Value;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -14,9 +13,14 @@ public abstract class Events {
     public abstract Optional<EventToken> eventToken();
     protected abstract Stream<Event> consecutiveEventStreams();
 
+    @Value.Derived
     public EntryStream<EntityId, Stream<Event>> eventStreams() {
-        return EntryStream.of(consecutiveEventStreams()
-                .map(event -> ImmutableEntityIdAnd.of(event.entityId(), event)))
+        return consecutiveEventsToEntryStream(consecutiveEventStreams());
+    }
+
+    public static EntryStream<EntityId, Stream<Event>> consecutiveEventsToEntryStream(Stream<Event> events) {
+        return EntryStream.of(events
+                .map(event -> EntityIdAnd.of(event.entityId(), event)))
                 .collapseKeys(Collectors.toList()) // This can be made way more lazy by not using collapseKeys
                 .mapValues(Collection::stream);
     }
@@ -27,14 +31,4 @@ public abstract class Events {
         return new Builder();
     }
 
-    @Value.Immutable
-    interface EntityIdAnd<V> extends Map.Entry<EntityId, V> {
-        @Value.Parameter EntityId getKey();
-        @Value.Parameter V getValue();
-
-        @Override
-        default V setValue(V value) {
-            throw new UnsupportedOperationException();
-        }
-    }
 }

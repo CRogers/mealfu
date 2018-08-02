@@ -2,16 +2,12 @@ package test.eventstore;
 
 import org.junit.Test;
 import uk.callumr.eventstore.EventStore;
-import uk.callumr.eventstore.core.BasicEntityId;
-import uk.callumr.eventstore.core.Event;
-import uk.callumr.eventstore.core.EventType;
-import uk.callumr.eventstore.core.VersionedEvent;
+import uk.callumr.eventstore.core.*;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.callumr.eventstore.core.EventFilters.forEntity;
 
 public abstract class EventStoreShould {
     private static final BasicEntityId JAMES = BasicEntityId.of("james");
@@ -90,8 +86,8 @@ public abstract class EventStoreShould {
 
         Event event4 = Event.of(ALEX, OTHER_EVENT_TYPE, OTHER_EVENT_DATA);
 
-        eventStore.withEvents(forEntity(JAMES), events -> {
-            assertThatSteamContainsEvents(events,
+        eventStore.withEvents(EventFilter3.forEntity(JAMES), events -> {
+            assertThat(events).containsExactly(
                     event1,
                     event2);
 
@@ -110,7 +106,7 @@ public abstract class EventStoreShould {
 
         AtomicBoolean runOnce = new AtomicBoolean(false);
 
-        eventStore.withEvents(forEntity(JAMES), events -> {
+        eventStore.withEvents(EventFilter3.forEntity(JAMES), events -> {
             long count = events.count();
             if (!runOnce.get()) {
                 eventStore.addEvents(event2);

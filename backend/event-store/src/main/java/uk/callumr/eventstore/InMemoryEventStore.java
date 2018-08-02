@@ -44,18 +44,13 @@ public class InMemoryEventStore implements EventStore {
     }
 
     @Override
-    public void withEvents(EventFilters filters, Function<Stream<VersionedEvent>, Stream<Event>> projectionFunc) {
-        Predicate<Event> predicate = oldEventFiltersToPredicate(filters);
+    public void withEvents(EventFilter3 eventFilter, Function<EntryStream<EntityId, Stream<Event>>, Stream<Event>> projectionFunc) {
+        Predicate<Event> predicate = eventFilterToPredicate(eventFilter);
 
         withEventsInner(predicate, projectionFunc);
     }
 
-    @Override
-    public void withEvents(EventFilter3 eventFilter, Function<EntryStream<EntityId, Stream<Event>>, Stream<Event>> projectionFunc) {
-        throw new UnsupportedOperationException();
-    }
-
-    private void withEventsInner(Predicate<Event> predicate, Function<Stream<VersionedEvent>, Stream<Event>> projectionFunc) {
+    private void withEventsInner(Predicate<Event> predicate, Function<EntryStream<EntityId, Stream<Event>>, Stream<Event>> projectionFunc) {
         new CallExecutor<>(new RetryConfigBuilder()
                 .withMaxNumberOfTries(10)
                 .withNoWaitBackoff()
@@ -67,8 +62,11 @@ public class InMemoryEventStore implements EventStore {
 
                     AtomicReference<Optional<Long>> lastVersion = new AtomicReference<>(Optional.empty());
 
-                    List<Event> newEvents = projectionFunc.apply(events
-                            .peek(event -> lastVersion.set(Optional.of(event.version()))))
+                    EntryStream<EntityId, Stream<Event>> eventsToFeedToProjection = Events.consecutiveEventsToEntryStream(events
+                            .peek(event -> lastVersion.set(Optional.of(event.version())))
+                            .map(VersionedEvent::event));
+
+                    List<Event> newEvents = projectionFunc.apply(eventsToFeedToProjection)
                             .collect(Collectors.toList());
 
                     lock.write_(() -> {
@@ -115,7 +113,7 @@ public class InMemoryEventStore implements EventStore {
                 .filter(versionedEvent -> eventPredicate.test(versionedEvent.event()));
     }
 
-    private Predicate<Event> eventFiltersToPredicate(EventFilter3 eventFilters) {
+    private Predicate<Event> eventFilterToPredicate(EventFilter3 eventFilters) {
         return eventFilters.toCondition(
                 Predicate::and,
                 entityIds -> event -> entityIds.contains(event.entityId()),
