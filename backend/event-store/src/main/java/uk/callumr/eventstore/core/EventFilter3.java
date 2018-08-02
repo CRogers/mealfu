@@ -5,6 +5,7 @@ import org.immutables.value.Value;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -13,6 +14,7 @@ import java.util.function.Function;
 public abstract class EventFilter3 {
     public abstract Set<EntityId> entityIds();
     public abstract Set<EventType> eventTypes();
+    protected abstract Optional<EventToken> sinceEventToken();
 
     @Value.Check
     protected void check() {
@@ -47,6 +49,13 @@ public abstract class EventFilter3 {
 
     public EventFilter3 ofType(EventType eventType) {
         return ofTypes(eventType);
+    }
+
+    public EventFilter3 since(Optional<EventToken> eventToken) {
+        return builder()
+                .from(this)
+                .sinceEventToken(eventToken)
+                .build();
     }
 
     public <T> T toCondition(

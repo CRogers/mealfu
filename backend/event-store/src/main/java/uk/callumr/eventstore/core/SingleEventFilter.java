@@ -2,12 +2,14 @@ package uk.callumr.eventstore.core;
 
 import org.immutables.value.Value;
 
+import java.util.Optional;
 import java.util.Set;
 
 @Value.Immutable
 public abstract class SingleEventFilter {
     protected abstract EntityId entityId();
     protected abstract Set<EventType> eventTypes();
+    protected abstract Optional<EventToken> sinceEventToken();
 
     public EventFilter3 toMultiFilter() {
         return EventFilter3.builder()
@@ -31,5 +33,12 @@ public abstract class SingleEventFilter {
 
     public SingleEventFilter ofType(EventType eventType) {
         return ofTypes(eventType);
+    }
+
+    public SingleEventFilter since(Optional<EventToken> eventToken) {
+        return builder()
+                .from(this)
+                .sinceEventToken(eventToken)
+                .build();
     }
 }

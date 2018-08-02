@@ -1,13 +1,16 @@
 package test.eventstore;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import uk.callumr.eventstore.EventStore;
 import uk.callumr.eventstore.core.*;
 
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.callumr.eventstore.core.EventFilter3.forEntity;
 
 public abstract class EventStoreShould {
     private static final BasicEntityId JAMES = BasicEntityId.of("james");
@@ -31,6 +34,22 @@ public abstract class EventStoreShould {
         Stream<Event> events = eventStore.eventsFor(JAMES).events();
 
         assertThat(events).containsExactly(event);
+    }
+
+    @Test
+    @Ignore
+    public void return_only_new_events_when_giving_back_an_event_token() {
+        Event event1 = Event.of(JAMES, EVENT_TYPE, EVENT_DATA);
+        eventStore.addEvents(event1);
+
+        Optional<EventToken> eventToken = eventStore.eventsFor(JAMES).eventToken();
+        assertThat(eventToken).isNotEmpty();
+
+        Event event2 = Event.of(JAMES, OTHER_EVENT_TYPE, EVENT_DATA);
+        eventStore.addEvents(event2);
+
+        Stream<Event> events = eventStore.events(forEntity(JAMES).since(eventToken)).events();
+        assertThat(events).containsExactly(event2);
     }
 
     @Test
@@ -86,7 +105,7 @@ public abstract class EventStoreShould {
 
         Event event4 = Event.of(ALEX, OTHER_EVENT_TYPE, OTHER_EVENT_DATA);
 
-        eventStore.withEvents(EventFilter3.forEntity(JAMES), events -> {
+        eventStore.withEvents(forEntity(JAMES), events -> {
             assertThat(events).containsExactly(
                     event1,
                     event2);
@@ -106,7 +125,7 @@ public abstract class EventStoreShould {
 
         AtomicBoolean runOnce = new AtomicBoolean(false);
 
-        eventStore.withEvents(EventFilter3.forEntity(JAMES), events -> {
+        eventStore.withEvents(forEntity(JAMES), events -> {
             long count = events.count();
             if (!runOnce.get()) {
                 eventStore.addEvents(event2);
