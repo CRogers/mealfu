@@ -29,13 +29,19 @@ public class InMemoryEventStore implements EventStore {
     }
 
     @Override
-    public Events events(EventFilter2 eventFilters) {
-        Stream<Event> eventStream = eventsUnlocked2(eventFilters)
+    public Events events(EventFilter3 eventFilter) {
+        Stream<Event> eventStream = eventsUnlocked2(eventFilter)
                 .map(VersionedEvent::event);
+
         return Events.builder()
                 .consecutiveEventStreams(eventStream)
                 .eventToken(EventToken.unimplemented())
                 .build();
+    }
+
+    @Override
+    public Events events(EventFilter2 eventFilters) {
+        throw new UnsupportedOperationException();
     }
 
     private Stream<VersionedEvent> oldEvents(Predicate<Event> predicate) {
@@ -101,10 +107,9 @@ public class InMemoryEventStore implements EventStore {
         );
     }
 
-    private Stream<VersionedEvent> eventsUnlocked2(EventFilter2 eventFilters) {
-        Predicate<Event> eventPredicate = eventFilters.toCondition(
+    private Stream<VersionedEvent> eventsUnlocked2(EventFilter3 eventFilter) {
+        Predicate<Event> eventPredicate = eventFilter.toCondition(
                 Predicate::and,
-                Predicate::or,
                 entityIds -> event -> entityIds.contains(event.entityId()),
                 eventTypes -> event -> eventTypes.contains(event.eventType()));
 
