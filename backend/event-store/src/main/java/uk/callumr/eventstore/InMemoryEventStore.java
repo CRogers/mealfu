@@ -3,7 +3,6 @@ package uk.callumr.eventstore;
 import com.evanlennick.retry4j.CallExecutor;
 import com.evanlennick.retry4j.config.RetryConfigBuilder;
 import uk.callumr.eventstore.core.*;
-import uk.callumr.eventstore.core.internal.EventId;
 import uk.callumr.eventstore.inmemory.EasyReadWriteLock;
 
 import java.time.Duration;
@@ -34,7 +33,7 @@ public class InMemoryEventStore implements EventStore {
                 .map(VersionedEvent::event);
         return Events.builder()
                 .consecutiveEventStreams(eventStream)
-                .eventToken(EventToken.of(EventId.of(-999L)))
+                .eventToken(EventToken.unimplemented())
                 .build();
     }
 

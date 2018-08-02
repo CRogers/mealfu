@@ -2,13 +2,17 @@ package test.eventstore;
 
 import org.junit.Test;
 import uk.callumr.eventstore.EventStore;
-import uk.callumr.eventstore.core.*;
+import uk.callumr.eventstore.core.BasicEntityId;
+import uk.callumr.eventstore.core.Event;
+import uk.callumr.eventstore.core.EventType;
+import uk.callumr.eventstore.core.VersionedEvent;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.callumr.eventstore.core.EventFilters.*;
+import static uk.callumr.eventstore.core.EventFilters.forEntity;
+import static uk.callumr.eventstore.core.EventFilters.ofType;
 
 public abstract class EventStoreShould {
     private static final BasicEntityId JAMES = BasicEntityId.of("james");
@@ -29,7 +33,7 @@ public abstract class EventStoreShould {
         Event event = EVENT_TYPE.newEvent(JAMES, EVENT_DATA);
         eventStore.addEvents(event);
 
-        Stream<Event> events = eventStore.eventsFor(JAMES);
+        Stream<Event> events = eventStore.eventsFor(JAMES).events();
 
         assertThat(events).containsExactly(event);
     }

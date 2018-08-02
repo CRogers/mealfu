@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.callumr.eventstore.EventStore;
 import uk.callumr.eventstore.core.*;
-import uk.callumr.eventstore.core.internal.EventId;
 import uk.callumr.eventstore.jooq.JooqUtils;
 
 import java.time.Duration;
@@ -94,7 +93,7 @@ public class PostgresEventStore implements EventStore {
 
         return Events.builder()
                 .consecutiveEventStreams(eventStream)
-                .eventToken(EventToken.of(EventId.of(-999)))
+                .eventToken(EventToken.unimplemented())
                 .build();
     }
 

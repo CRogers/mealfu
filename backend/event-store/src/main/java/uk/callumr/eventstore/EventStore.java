@@ -1,6 +1,7 @@
 package uk.callumr.eventstore;
 
 import uk.callumr.eventstore.core.*;
+import uk.callumr.eventstore.core.internal.SingleEvents;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -16,12 +17,17 @@ public interface EventStore {
 
     Stream<VersionedEvent> events(EventFilters filters);
 
-    default Stream<Event> eventsFor(EntityId entityId, EventType... eventTypes) {
-        return events(EventFilter3.forEntity(entityId).ofTypes(eventTypes))
+    default SingleEvents eventsFor(EntityId entityId, EventType... eventTypes) {
+        Stream<Event> events = events(EventFilter3.forEntity(entityId).ofTypes(eventTypes))
                 .eventStreams()
                 .findFirst()
                 .map(Map.Entry::getValue)
                 .orElseGet(Stream::empty);
+
+        return SingleEvents.builder()
+                .events(events)
+                .eventToken(EventToken.unimplemented())
+                .build();
     }
 
     default Events events(EventFilter3 eventFilter, EventFilter3... eventFilters) {
