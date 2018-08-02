@@ -2,6 +2,7 @@ package uk.callumr.eventstore;
 
 import com.evanlennick.retry4j.CallExecutor;
 import com.evanlennick.retry4j.config.RetryConfigBuilder;
+import one.util.streamex.EntryStream;
 import uk.callumr.eventstore.core.*;
 import uk.callumr.eventstore.inmemory.EasyReadWriteLock;
 
@@ -37,17 +38,25 @@ public class InMemoryEventStore implements EventStore {
                 .build();
     }
 
-    @Override
-    public Stream<VersionedEvent> events(EventFilters filters) {
-        return lock.read(() -> eventsUnlocked(filters));
-    }
-
-    private Stream<VersionedEvent> oldEvents(EventFilters filters) {
-        return lock.read(() -> eventsUnlocked(filters));
+    private Stream<VersionedEvent> oldEvents(Predicate<Event> predicate) {
+        return lock.read(() -> eventsUnlocked(predicate));
     }
 
     @Override
     public void withEvents(EventFilters filters, Function<Stream<VersionedEvent>, Stream<Event>> projectionFunc) {
+        Predicate<Event> predicate = oldEventFiltersToPredicate(filters);
+
+        withEventsInner(predicate, projectionFunc);
+    }
+
+    @Override
+    public void withEvents(EventFilter2 eventFilters, Function<EntryStream<EntityId, Event>, Stream<Event>> projectionFunc) {
+        Predicate<Event> predicate = eventFiltersToPredicate(eventFilters);
+
+        throw new UnsupportedOperationException();
+    }
+
+    private void withEventsInner(Predicate<Event> predicate, Function<Stream<VersionedEvent>, Stream<Event>> projectionFunc) {
         new CallExecutor<>(new RetryConfigBuilder()
                 .withMaxNumberOfTries(10)
                 .withNoWaitBackoff()
@@ -55,7 +64,7 @@ public class InMemoryEventStore implements EventStore {
                 .retryOnSpecificExceptions(ConcurrentModificationException.class)
                 .build())
                 .execute(() -> {
-                    Stream<VersionedEvent> events = oldEvents(filters);
+                    Stream<VersionedEvent> events = oldEvents(predicate);
 
                     AtomicReference<Optional<Long>> lastVersion = new AtomicReference<>(Optional.empty());
 
@@ -64,7 +73,7 @@ public class InMemoryEventStore implements EventStore {
                             .collect(Collectors.toList());
 
                     lock.write_(() -> {
-                        long mostRecentEventVersion = oldEvents(filters)
+                        long mostRecentEventVersion = oldEvents(predicate)
                                 .map(VersionedEvent::version)
                                 .reduce((a, b) -> b)
                                 .orElse(Long.MIN_VALUE);
@@ -103,16 +112,26 @@ public class InMemoryEventStore implements EventStore {
                 .filter(versionedEvent -> eventPredicate.test(versionedEvent.event()));
     }
 
-    private Stream<VersionedEvent> eventsUnlocked(EventFilters filters) {
-        Predicate<Event> eventPredicate = filters.stream().reduce(
+    private Stream<VersionedEvent> eventsUnlocked(Predicate<Event> eventPredicate) {
+        return events.stream()
+                .filter(versionedEvent -> eventPredicate.test(versionedEvent.event()));
+    }
+
+    private Predicate<Event> eventFiltersToPredicate(EventFilter2 eventFilters) {
+        return eventFilters.toCondition(
+                Predicate::and,
+                Predicate::or,
+                entityIds -> event -> entityIds.contains(event.entityId()),
+                eventTypes -> event -> eventTypes.contains(event.eventType()));
+    }
+
+    private Predicate<Event> oldEventFiltersToPredicate(EventFilters filters) {
+        return filters.stream().reduce(
                 event -> false,
                 (predicate, eventFilter) -> predicate.or(EventFilter.caseOf(eventFilter)
                         .forEntity(eventValueEqualTo(Event::entityId))
                         .ofType(eventValueEqualTo(Event::eventType))),
                 Predicate::or);
-
-        return events.stream()
-                .filter(versionedEvent -> eventPredicate.test(versionedEvent.event()));
     }
 
     private static <T> Function<T, Predicate<Event>> eventValueEqualTo(Function<Event, T> extractor) {

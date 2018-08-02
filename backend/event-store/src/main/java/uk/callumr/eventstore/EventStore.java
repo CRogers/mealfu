@@ -1,5 +1,6 @@
 package uk.callumr.eventstore;
 
+import one.util.streamex.EntryStream;
 import uk.callumr.eventstore.core.*;
 import uk.callumr.eventstore.core.internal.SingleEvents;
 
@@ -43,4 +44,5 @@ public interface EventStore {
 
     void withEvents(EventFilters filters, Function<Stream<VersionedEvent>, Stream<Event>> projectionFunc);
 
+    void withEvents(EventFilter2 eventFilters, Function<EntryStream<EntityId, Event>, Stream<Event>> projectionFunc);
 }

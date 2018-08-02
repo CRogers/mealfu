@@ -3,6 +3,7 @@ package uk.callumr.eventstore.cockroachdb;
 import com.evanlennick.retry4j.CallExecutor;
 import com.evanlennick.retry4j.config.RetryConfigBuilder;
 import com.google.common.base.Suppliers;
+import one.util.streamex.EntryStream;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.jooq.impl.DefaultDataType;
@@ -68,18 +69,6 @@ public class PostgresEventStore implements EventStore {
     }
 
     @Override
-    public Stream<VersionedEvent> events(EventFilters filters) {
-        Condition condition = eventFiltersToCondition(filters);
-
-        return transactionResult(dsl -> logSQL(dsl
-                .select(VERSION, ENTITY_ID, EVENT_TYPE, DATA)
-                .from(eventsTable)
-                .where(condition))
-                .stream()
-                .map(this::toVersionedEvent));
-    }
-
-    @Override
     public Events events(EventFilter2 eventFilters) {
         Condition condition = eventFiltersToCondition2(eventFilters);
 
@@ -112,6 +101,13 @@ public class PostgresEventStore implements EventStore {
                     log.debug("addedRows = {}", addedRows);
                     return addedRows;
                 });
+    }
+
+    @Override
+    public void withEvents(EventFilter2 eventFilters, Function<EntryStream<EntityId, Event>, Stream<Event>> projectionFunc) {
+        Condition condition = eventFiltersToCondition2(eventFilters);
+
+        throw new UnsupportedOperationException();
     }
 
     private int withEventsInner(Condition condition, Function<Stream<VersionedEvent>, Stream<Event>> projectionFunc) {
