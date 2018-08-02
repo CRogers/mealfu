@@ -11,7 +11,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 
 @Value.Immutable
-public abstract class EventFilter3 {
+public abstract class EventFilter {
     public abstract Set<EntityId> entityIds();
     public abstract Set<EventType> eventTypes();
     protected abstract Optional<EventToken> sinceEventToken();
@@ -21,13 +21,13 @@ public abstract class EventFilter3 {
         Preconditions.checkArgument(!entityIds().isEmpty(), "At least one entityId must be specified");
     }
 
-    static class Builder extends ImmutableEventFilter3.Builder { }
+    static class Builder extends ImmutableEventFilter.Builder { }
 
     static Builder builder() {
         return new Builder();
     }
 
-    public static EventFilter3 forEntities(EntityId entityId, EntityId... entityIds) {
+    public static EventFilter forEntities(EntityId entityId, EntityId... entityIds) {
         return builder()
                 .addEntityIds(entityId)
                 .addEntityIds(entityIds)
@@ -40,18 +40,18 @@ public abstract class EventFilter3 {
                 .build();
     }
 
-    public EventFilter3 ofTypes(EventType... eventTypes) {
+    public EventFilter ofTypes(EventType... eventTypes) {
         return builder()
                 .from(this)
                 .addEventTypes(eventTypes)
                 .build();
     }
 
-    public EventFilter3 ofType(EventType eventType) {
+    public EventFilter ofType(EventType eventType) {
         return ofTypes(eventType);
     }
 
-    public EventFilter3 since(Optional<EventToken> eventToken) {
+    public EventFilter since(Optional<EventToken> eventToken) {
         return builder()
                 .from(this)
                 .sinceEventToken(eventToken)

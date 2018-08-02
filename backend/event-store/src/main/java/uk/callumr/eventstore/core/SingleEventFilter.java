@@ -11,8 +11,8 @@ public abstract class SingleEventFilter {
     protected abstract Set<EventType> eventTypes();
     protected abstract Optional<EventToken> sinceEventToken();
 
-    public EventFilter3 toMultiFilter() {
-        return EventFilter3.builder()
+    public EventFilter toMultiFilter() {
+        return EventFilter.builder()
                 .addEntityIds(entityId())
                 .eventTypes(eventTypes())
                 .build();

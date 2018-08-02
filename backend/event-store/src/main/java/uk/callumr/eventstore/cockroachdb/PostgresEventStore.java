@@ -70,7 +70,7 @@ public class PostgresEventStore implements EventStore {
     }
 
     @Override
-    public Events events(EventFilter3 eventFilter) {
+    public Events events(EventFilter eventFilter) {
         Condition condition = eventFiltersToCondition2(eventFilter);
 
         Stream<Event> eventStream = transactionResult(dsl -> dsl
@@ -88,7 +88,7 @@ public class PostgresEventStore implements EventStore {
     }
 
     @Override
-    public void withEvents(EventFilter3 eventFilter, Function<EntryStream<EntityId, Stream<Event>>, Stream<Event>> projectionFunc) {
+    public void withEvents(EventFilter eventFilter, Function<EntryStream<EntityId, Stream<Event>>, Stream<Event>> projectionFunc) {
         Condition condition = eventFiltersToCondition2(eventFilter);
 
         new CallExecutor<>(new RetryConfigBuilder()
@@ -181,7 +181,7 @@ public class PostgresEventStore implements EventStore {
         return iv.values(event.entityId().asString(), event.eventType().asString(), event.data());
     }
 
-    private Condition eventFiltersToCondition2(EventFilter3 eventFilter) {
+    private Condition eventFiltersToCondition2(EventFilter eventFilter) {
         return eventFilter.toCondition(
                 Condition::and,
                 entityIds -> ENTITY_ID.in(entityIds.stream()

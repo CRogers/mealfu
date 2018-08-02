@@ -17,7 +17,7 @@ public interface EventStore {
     }
 
     default SingleEvents eventsFor(EntityId entityId, EventType... eventTypes) {
-        return events(EventFilter3.forEntity(entityId).ofTypes(eventTypes));
+        return events(EventFilter.forEntity(entityId).ofTypes(eventTypes));
     }
 
     default SingleEvents events(SingleEventFilter singleEventFilter) {
@@ -35,7 +35,7 @@ public interface EventStore {
                 .build();
     }
 
-    Events events(EventFilter3 eventFilter);
+    Events events(EventFilter eventFilter);
 
     default void withEvents(SingleEventFilter singleEventFilter, Function<Stream<Event>, Stream<Event>> projectionFunc) {
         withEvents(singleEventFilter.toMultiFilter(), manyEventStreams -> {
@@ -47,5 +47,5 @@ public interface EventStore {
         });
     }
 
-    void withEvents(EventFilter3 eventFilter, Function<EntryStream<EntityId, Stream<Event>>, Stream<Event>> projectionFunc);
+    void withEvents(EventFilter eventFilter, Function<EntryStream<EntityId, Stream<Event>>, Stream<Event>> projectionFunc);
 }

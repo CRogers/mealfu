@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.callumr.eventstore.core.EventFilter3.forEntity;
+import static uk.callumr.eventstore.core.EventFilter.forEntity;
 
 public abstract class EventStoreShould {
     private static final BasicEntityId JAMES = BasicEntityId.of("james");

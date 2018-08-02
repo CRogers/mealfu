@@ -29,7 +29,7 @@ public class InMemoryEventStore implements EventStore {
     }
 
     @Override
-    public Events events(EventFilter3 eventFilter) {
+    public Events events(EventFilter eventFilter) {
         Stream<Event> eventStream = eventsUnlocked(filterToPredicate(eventFilter))
                 .map(VersionedEvent::event);
 
@@ -44,7 +44,7 @@ public class InMemoryEventStore implements EventStore {
     }
 
     @Override
-    public void withEvents(EventFilter3 eventFilter, Function<EntryStream<EntityId, Stream<Event>>, Stream<Event>> projectionFunc) {
+    public void withEvents(EventFilter eventFilter, Function<EntryStream<EntityId, Stream<Event>>, Stream<Event>> projectionFunc) {
         Predicate<Event> predicate = eventFilterToPredicate(eventFilter);
 
         withEventsInner(predicate, projectionFunc);
@@ -98,7 +98,7 @@ public class InMemoryEventStore implements EventStore {
         );
     }
 
-    private Predicate<Event> filterToPredicate(EventFilter3 eventFilter) {
+    private Predicate<Event> filterToPredicate(EventFilter eventFilter) {
         return eventFilter.toCondition(
                 Predicate::and,
                 entityIds -> event -> entityIds.contains(event.entityId()),
@@ -110,7 +110,7 @@ public class InMemoryEventStore implements EventStore {
                 .filter(versionedEvent -> eventPredicate.test(versionedEvent.event()));
     }
 
-    private Predicate<Event> eventFilterToPredicate(EventFilter3 eventFilters) {
+    private Predicate<Event> eventFilterToPredicate(EventFilter eventFilters) {
         return eventFilters.toCondition(
                 Predicate::and,
                 entityIds -> event -> entityIds.contains(event.entityId()),
