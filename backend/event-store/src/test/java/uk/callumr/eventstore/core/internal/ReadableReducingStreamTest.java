@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.util.Iterator;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,14 +44,24 @@ public class ReadableReducingStreamTest {
 
         canGetTheReduction();
 
-        assertThat(iterator).containsExactly(1, 2)
-;    }
+        assertThat(iterator).containsExactly(1, 2);
+    }
+
+    @Test
+    public void empty_stream_should_produce_an_empty_reduction() {
+        ReadableReducingStream<Integer, String> readableReducingStream = new ReadableReducingStream<>(
+                Stream.empty(),
+                "",
+                (string, i) -> string + i);
+
+        assertThat(readableReducingStream.reduction()).isEmpty();
+    }
 
     private void canReadTheStream() {
         assertThat(readableReducingStream.stream()).containsExactly(0, 1, 2);
     }
 
     private void canGetTheReduction() {
-        assertThat(readableReducingStream.reduction()).isEqualTo("012");
+        assertThat(readableReducingStream.reduction()).hasValue("012");
     }
 }
