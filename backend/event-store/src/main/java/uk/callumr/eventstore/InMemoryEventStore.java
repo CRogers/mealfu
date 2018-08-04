@@ -31,6 +31,7 @@ public class InMemoryEventStore implements EventStore {
     @Override
     public Events events(EventFilter eventFilter) {
         Stream<Event> eventStream = eventsUnlocked(filterToPredicate(eventFilter))
+                .stream()
                 .map(VersionedEvent::event);
 
         return Events.builder()
@@ -40,7 +41,7 @@ public class InMemoryEventStore implements EventStore {
     }
 
     private Stream<VersionedEvent> events(Predicate<VersionedEvent> predicate) {
-        return lock.read(() -> eventsUnlocked(predicate));
+        return lock.read(() -> eventsUnlocked(predicate)).stream();
     }
 
     @Override
@@ -106,8 +107,8 @@ public class InMemoryEventStore implements EventStore {
                 eventToken -> versionedEvent -> versionedEvent.version() > eventToken.lastEventAccessed().eventId());
     }
 
-    private Stream<VersionedEvent> eventsUnlocked(Predicate<VersionedEvent> eventPredicate) {
-        return events.stream().filter(eventPredicate);
+    private List<VersionedEvent> eventsUnlocked(Predicate<VersionedEvent> eventPredicate) {
+        return events.stream().filter(eventPredicate).collect(Collectors.toList());
     }
 
 }
