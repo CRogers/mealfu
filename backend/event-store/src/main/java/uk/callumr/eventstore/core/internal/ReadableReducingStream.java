@@ -19,6 +19,8 @@ public class ReadableReducingStream<T, R> {
     }
 
     public R reduction() {
-        throw new UnsupportedOperationException();
+        return stream.reduce(initialState, reducer, (a, b) -> {
+            throw new UnsupportedOperationException();
+        });
     }
 }
