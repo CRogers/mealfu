@@ -4,13 +4,11 @@ import com.evanlennick.retry4j.CallExecutor;
 import com.evanlennick.retry4j.config.RetryConfigBuilder;
 import one.util.streamex.EntryStream;
 import uk.callumr.eventstore.core.*;
+import uk.callumr.eventstore.core.internal.EventId;
 import uk.callumr.eventstore.inmemory.EasyReadWriteLock;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -30,13 +28,20 @@ public class InMemoryEventStore implements EventStore {
 
     @Override
     public Events events(EventFilter eventFilter) {
-        Stream<Event> eventStream = eventsUnlocked(filterToPredicate(eventFilter))
+        List<VersionedEvent> versionedEvents = eventsUnlocked(filterToPredicate(eventFilter));
+
+        Optional<EventToken> maxVersion = versionedEvents.stream().max(Comparator.comparing(VersionedEvent::version))
+                .map(VersionedEvent::version)
+                .map(EventId::of)
+                .map(EventToken::of);
+
+        Stream<Event> eventStream = versionedEvents
                 .stream()
                 .map(VersionedEvent::event);
 
         return Events.builder()
                 .consecutiveEventStreams(eventStream)
-                .eventToken(EventToken.unimplemented())
+                .eventToken(maxVersion)
                 .build();
     }
 
@@ -108,7 +113,9 @@ public class InMemoryEventStore implements EventStore {
     }
 
     private List<VersionedEvent> eventsUnlocked(Predicate<VersionedEvent> eventPredicate) {
-        return events.stream().filter(eventPredicate).collect(Collectors.toList());
+        return events.stream()
+                .filter(eventPredicate)
+                .collect(Collectors.toList());
     }
 
 }
