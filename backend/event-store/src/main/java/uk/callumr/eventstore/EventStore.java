@@ -31,7 +31,7 @@ public interface EventStore {
 
         return SingleEvents.builder()
                 .events(eventStream)
-                .eventToken(events.eventToken())
+                .eventTokenSupplier(events::eventToken)
                 .build();
     }
 

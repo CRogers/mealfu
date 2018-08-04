@@ -5,17 +5,22 @@ import org.immutables.value.Value;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Value.Immutable
 public abstract class Events {
-    public abstract Optional<EventToken> eventToken();
+    protected abstract Supplier<Optional<EventToken>> eventTokenSupplier();
     protected abstract Stream<Event> consecutiveEventStreams();
 
     @Value.Derived
     public EntryStream<EntityId, Stream<Event>> eventStreams() {
         return consecutiveEventsToEntryStream(consecutiveEventStreams());
+    }
+
+    public Optional<EventToken> eventToken() {
+        return eventTokenSupplier().get();
     }
 
     public static EntryStream<EntityId, Stream<Event>> consecutiveEventsToEntryStream(Stream<Event> events) {

@@ -82,7 +82,7 @@ public class PostgresEventStore implements EventStore {
 
         return Events.builder()
                 .consecutiveEventStreams(events.stream().map(VersionedEvent::event))
-                .eventToken(events.reduction().map(EventId::of).map(EventToken::of))
+                .eventTokenSupplier(() -> events.reduction().map(EventId::of).map(EventToken::of))
                 .build();
     }
 

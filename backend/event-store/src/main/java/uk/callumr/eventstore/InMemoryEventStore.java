@@ -41,7 +41,7 @@ public class InMemoryEventStore implements EventStore {
 
         return Events.builder()
                 .consecutiveEventStreams(eventStream)
-                .eventToken(maxVersion)
+                .eventTokenSupplier(() -> maxVersion)
                 .build();
     }
 

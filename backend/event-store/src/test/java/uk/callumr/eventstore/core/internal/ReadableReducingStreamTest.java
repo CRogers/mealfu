@@ -57,6 +57,12 @@ public class ReadableReducingStreamTest {
         assertThat(readableReducingStream.reduction()).isEmpty();
     }
 
+    @Test
+    public void get_the_reduction_twice_safely() {
+        canGetTheReduction();
+        canGetTheReduction();
+    }
+
     private void canReadTheStream() {
         assertThat(readableReducingStream.stream()).containsExactly(0, 1, 2);
     }

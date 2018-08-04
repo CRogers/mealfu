@@ -5,12 +5,17 @@ import uk.callumr.eventstore.core.Event;
 import uk.callumr.eventstore.core.EventToken;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 @Value.Immutable
 public abstract class SingleEvents {
-    public abstract Optional<EventToken> eventToken();
+    protected abstract Supplier<Optional<EventToken>> eventTokenSupplier();
     public abstract Stream<Event> events();
+
+    public Optional<EventToken> eventToken() {
+        return eventTokenSupplier().get();
+    }
 
     public static class Builder extends ImmutableSingleEvents.Builder { }
 
