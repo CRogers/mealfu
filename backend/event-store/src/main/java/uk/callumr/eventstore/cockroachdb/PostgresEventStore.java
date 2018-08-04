@@ -106,9 +106,7 @@ public class PostgresEventStore implements EventStore {
                 .retryOnReturnValue(0)
                 .build())
                 .execute(() -> {
-                    int addedRows = withEventsInner(condition, projectionFunc);
-                    log.debug("addedRows = {}", addedRows);
-                    return addedRows;
+                    return withEventsInner(condition, projectionFunc);
                 });
     }
 
