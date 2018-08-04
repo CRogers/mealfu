@@ -126,9 +126,9 @@ public final class Derive4Jackson implements ExtensionFactory {
                                 .addMember("value", "$S", jsonTypeName.apply(ts))
                                 .build()))
                         .collect(toList()))
-                .modModifiers(modifiers -> modifiers
+                .modModifiers(modifiers -> Stream.concat(Stream.of(Modifier.PUBLIC), modifiers
                         .stream()
-                        .filter(m -> m != Modifier.PRIVATE)
+                        .filter(m -> m != Modifier.PRIVATE))
                         .collect(toSet()))
                 .modMethods(methodSpecs -> Stream.concat(getters, methodSpecs.stream()
                         .map(methodSpec -> methodSpec.isConstructor()

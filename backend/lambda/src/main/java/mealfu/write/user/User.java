@@ -1,4 +1,4 @@
-package write.user;
+package mealfu.write.user;
 
 import mealfu.events.MealfuEventStore;
 import mealfu.model.recipe.RecipeId;

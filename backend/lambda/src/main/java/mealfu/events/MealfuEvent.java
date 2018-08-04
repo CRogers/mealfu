@@ -17,7 +17,7 @@ public interface MealfuEvent<Id extends MealfuEntityId> {
 
     @JsonIgnore
     default EventType eventType() {
-        return EventType.of(getClass().getAnnotation(JsonTypeName.class).value());
+        return EventType.of(jsonTypeNameFor(getClass()));
     }
 
     default String toJson() {
@@ -38,5 +38,9 @@ public interface MealfuEvent<Id extends MealfuEntityId> {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    static String jsonTypeNameFor(Class<? extends MealfuEvent> aClass) {
+        return aClass.getAnnotation(JsonTypeName.class).value();
     }
 }

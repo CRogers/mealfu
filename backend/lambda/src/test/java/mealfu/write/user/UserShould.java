@@ -6,7 +6,6 @@ import mealfu.model.recipe.RecipeName;
 import mealfu.model.user.UserId;
 import org.junit.Test;
 import uk.callumr.eventstore.InMemoryEventStore;
-import write.user.User;
 
 import static mealfu.model.recipe.RecipeEvents.Created;
 import static mealfu.model.recipe.RecipeEvents.NameChanged;
@@ -24,12 +23,12 @@ public class UserShould {
     public void create_a_recipe() {
         RecipeId recipeId = user.createRecipe(recipeName);
 
-        assertThat(eventStore.events(recipeId)).containsExactly(
+        assertThat(eventStore.eventsFor(recipeId)).containsExactly(
                 Created(userId),
                 NameChanged(recipeName)
         );
 
-        assertThat(eventStore.events(userId)).containsExactly(
+        assertThat(eventStore.eventsFor(userId)).containsExactly(
                 AddedRecipe(recipeId)
         );
     }
