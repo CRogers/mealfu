@@ -15,6 +15,7 @@ public abstract class SingleEventFilter {
         return EventFilter.builder()
                 .addEntityIds(entityId())
                 .eventTypes(eventTypes())
+                .sinceEventToken(sinceEventToken())
                 .build();
     }
 

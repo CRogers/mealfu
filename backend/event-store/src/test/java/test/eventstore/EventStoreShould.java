@@ -36,8 +36,8 @@ public abstract class EventStoreShould {
         assertThat(events).containsExactly(event);
     }
 
-    @Test
     @Ignore
+    @Test
     public void return_only_new_events_when_giving_back_an_event_token() {
         Event event1 = Event.of(JAMES, EVENT_TYPE, EVENT_DATA);
         eventStore.addEvents(event1);

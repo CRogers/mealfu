@@ -39,18 +39,18 @@ public class InMemoryEventStore implements EventStore {
                 .build();
     }
 
-    private Stream<VersionedEvent> events(Predicate<Event> predicate) {
+    private Stream<VersionedEvent> events(Predicate<VersionedEvent> predicate) {
         return lock.read(() -> eventsUnlocked(predicate));
     }
 
     @Override
     public void withEvents(EventFilter eventFilter, Function<EntryStream<EntityId, Stream<Event>>, Stream<Event>> projectionFunc) {
-        Predicate<Event> predicate = eventFilterToPredicate(eventFilter);
+        Predicate<VersionedEvent> predicate = filterToPredicate(eventFilter);
 
         withEventsInner(predicate, projectionFunc);
     }
 
-    private void withEventsInner(Predicate<Event> predicate, Function<EntryStream<EntityId, Stream<Event>>, Stream<Event>> projectionFunc) {
+    private void withEventsInner(Predicate<VersionedEvent> predicate, Function<EntryStream<EntityId, Stream<Event>>, Stream<Event>> projectionFunc) {
         new CallExecutor<>(new RetryConfigBuilder()
                 .withMaxNumberOfTries(10)
                 .withNoWaitBackoff()
@@ -98,23 +98,16 @@ public class InMemoryEventStore implements EventStore {
         );
     }
 
-    private Predicate<Event> filterToPredicate(EventFilter eventFilter) {
+    private Predicate<VersionedEvent> filterToPredicate(EventFilter eventFilter) {
         return eventFilter.toCondition(
                 Predicate::and,
-                entityIds -> event -> entityIds.contains(event.entityId()),
-                eventTypes -> event -> eventTypes.contains(event.eventType()));
+                entityIds -> versionedEvent -> entityIds.contains(versionedEvent.event().entityId()),
+                eventTypes -> versionedEvent -> eventTypes.contains(versionedEvent.event().eventType()),
+                eventToken -> versionedEvent -> versionedEvent.version() > eventToken.lastEventAccessed().eventId());
     }
 
-    private Stream<VersionedEvent> eventsUnlocked(Predicate<Event> eventPredicate) {
-        return events.stream()
-                .filter(versionedEvent -> eventPredicate.test(versionedEvent.event()));
-    }
-
-    private Predicate<Event> eventFilterToPredicate(EventFilter eventFilters) {
-        return eventFilters.toCondition(
-                Predicate::and,
-                entityIds -> event -> entityIds.contains(event.entityId()),
-                eventTypes -> event -> eventTypes.contains(event.eventType()));
+    private Stream<VersionedEvent> eventsUnlocked(Predicate<VersionedEvent> eventPredicate) {
+        return events.stream().filter(eventPredicate);
     }
 
 }

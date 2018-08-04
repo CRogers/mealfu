@@ -189,7 +189,8 @@ public class PostgresEventStore implements EventStore {
                         .collect(Collectors.toList())),
                 eventTypes -> EVENT_TYPE.in(eventTypes.stream()
                         .map(EventType::asString)
-                        .collect(Collectors.toList())));
+                        .collect(Collectors.toList())),
+                eventToken -> VERSION.greaterThan(eventToken.lastEventAccessed().eventId()));
     }
 
     private VersionedEvent toVersionedEvent(Record4<Long, String, String, String> record) {

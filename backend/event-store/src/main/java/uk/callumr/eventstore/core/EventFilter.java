@@ -61,15 +61,19 @@ public abstract class EventFilter {
     public <T> T toCondition(
             BinaryOperator<T> and,
             Function<Set<EntityId>, T> entityIdsCondition,
-            Function<Set<EventType>, T> eventTypesCondition) {
+            Function<Set<EventType>, T> eventTypesCondition,
+            Function<EventToken, T> sinceEventTokenCondition) {
 
-        List<T> conditions = new ArrayList<>(2);
+        List<T> conditions = new ArrayList<>(3);
         if (!entityIds().isEmpty()) {
             conditions.add(entityIdsCondition.apply(entityIds()));
         }
         if (!eventTypes().isEmpty()) {
             conditions.add(eventTypesCondition.apply(eventTypes()));
         }
+        sinceEventToken().ifPresent(eventToken -> {
+            conditions.add(sinceEventTokenCondition.apply(eventToken));
+        });
         return conditions.stream()
                 .reduce(and)
                 .orElseThrow(() -> new IllegalArgumentException("Filters must contain at least one entity id"));
