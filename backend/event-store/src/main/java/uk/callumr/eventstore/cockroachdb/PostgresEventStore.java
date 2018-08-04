@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.callumr.eventstore.EventStore;
 import uk.callumr.eventstore.core.*;
+import uk.callumr.eventstore.core.internal.EventId;
+import uk.callumr.eventstore.core.internal.ReadableReducingStream;
 import uk.callumr.eventstore.jooq.JooqUtils;
 
 import java.time.Duration;
@@ -73,12 +75,14 @@ public class PostgresEventStore implements EventStore {
     public Events events(EventFilter eventFilter) {
         Condition condition = eventFiltersToCondition2(eventFilter);
 
-        Stream<Event> eventStream = eventsForCondition(condition)
-                .map(VersionedEvent::event);
+        ReadableReducingStream<VersionedEvent, Long> events = new ReadableReducingStream<>(
+                eventsForCondition(condition),
+                0L,
+                (maxVersion, versionedEvent) -> versionedEvent.version());
 
         return Events.builder()
-                .consecutiveEventStreams(eventStream)
-                .eventToken(EventToken.unimplemented())
+                .consecutiveEventStreams(events.stream().map(VersionedEvent::event))
+                .eventToken(events.reduction().map(EventId::of).map(EventToken::of))
                 .build();
     }
 
