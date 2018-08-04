@@ -73,18 +73,22 @@ public class PostgresEventStore implements EventStore {
     public Events events(EventFilter eventFilter) {
         Condition condition = eventFiltersToCondition2(eventFilter);
 
-        Stream<Event> eventStream = transactionResult(dsl -> dsl
-                .select(VERSION, ENTITY_ID, EVENT_TYPE, DATA)
-                .from(eventsTable)
-                .where(condition))
-                .stream()
-                .map(this::toVersionedEvent)
+        Stream<Event> eventStream = eventsForCondition(condition)
                 .map(VersionedEvent::event);
 
         return Events.builder()
                 .consecutiveEventStreams(eventStream)
                 .eventToken(EventToken.unimplemented())
                 .build();
+    }
+
+    private Stream<VersionedEvent> eventsForCondition(Condition condition) {
+        return transactionResult(dsl -> dsl
+                .select(VERSION, ENTITY_ID, EVENT_TYPE, DATA)
+                .from(eventsTable)
+                .where(condition))
+                .stream()
+                .map(this::toVersionedEvent);
     }
 
     @Override
@@ -105,14 +109,7 @@ public class PostgresEventStore implements EventStore {
     }
 
     private int withEventsInner(Condition condition, Function<EntryStream<EntityId, Stream<Event>>, Stream<Event>> projectionFunc) {
-        Stream<VersionedEvent> events = transactionResult(dsl -> {
-            return dsl
-                    .select(VERSION, ENTITY_ID, EVENT_TYPE, DATA)
-                    .from(eventsTable)
-                    .where(condition)
-                    .stream()
-                    .map(this::toVersionedEvent);
-        });
+        Stream<VersionedEvent> events = eventsForCondition(condition);
 
         AtomicReference<Optional<Long>> lastVersion = new AtomicReference<>(Optional.empty());
 
