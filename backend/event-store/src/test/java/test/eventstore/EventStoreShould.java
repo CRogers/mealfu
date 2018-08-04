@@ -136,8 +136,4 @@ public abstract class EventStoreShould {
                 Event.of(ALEX, EVENT_TYPE, "2"));
     }
 
-    private static void assertThatSteamContainsEvents(Stream<VersionedEvent> eventStream, Event... expectedEvents) {
-        assertThat(eventStream.map(VersionedEvent::event)).containsExactly(expectedEvents);
-    }
-
 }

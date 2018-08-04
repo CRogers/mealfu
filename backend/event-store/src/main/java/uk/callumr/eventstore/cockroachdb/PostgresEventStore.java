@@ -105,9 +105,7 @@ public class PostgresEventStore implements EventStore {
                 .withDelayBetweenTries(Duration.ZERO)
                 .retryOnReturnValue(0)
                 .build())
-                .execute(() -> {
-                    return withEventsInner(condition, projectionFunc);
-                });
+                .execute(() -> withEventsInner(condition, projectionFunc));
     }
 
     private int withEventsInner(Condition condition, Function<EntryStream<EntityId, Stream<Event>>, Stream<Event>> projectionFunc) {
