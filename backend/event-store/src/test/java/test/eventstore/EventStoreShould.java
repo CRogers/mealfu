@@ -136,4 +136,24 @@ public abstract class EventStoreShould {
                 Event.of(ALEX, EVENT_TYPE, "2"));
     }
 
+    @Test
+    public void reprojection_should_work_when_the_user_does_not_consume_all_events() {
+        Event event1 = Event.of(JAMES, EVENT_TYPE, EVENT_DATA);
+        Event event2 = Event.of(JAMES, OTHER_EVENT_TYPE, EVENT_DATA);
+
+        eventStore.addEvents(event1, event2, event2, event2, event2, event2);
+
+        eventStore.withEvents(forEntity(JAMES), events -> {
+            return Stream.of(event1);
+        });
+    }
+
+    @Test
+    public void reprojection_should_allow_returning_no_events() {
+        eventStore.withEvents(forEntity(JAMES), events -> {
+            assertThat(events).isEmpty();
+            return Stream.of();
+        });
+    }
+
 }

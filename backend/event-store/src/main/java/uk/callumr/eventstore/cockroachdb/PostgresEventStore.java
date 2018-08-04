@@ -103,39 +103,41 @@ public class PostgresEventStore implements EventStore {
                 .withMaxNumberOfTries(MAX_TRIES)
                 .withNoWaitBackoff()
                 .withDelayBetweenTries(Duration.ZERO)
-                .retryOnReturnValue(0)
+                .retryOnReturnValue(Optional.of(0))
                 .build())
                 .execute(() -> withEventsInner(condition, projectionFunc));
     }
 
-    private int withEventsInner(Condition condition, Function<EntryStream<EntityId, Stream<Event>>, Stream<Event>> projectionFunc) {
+    private Optional<Integer> withEventsInner(Condition condition, Function<EntryStream<EntityId, Stream<Event>>, Stream<Event>> projectionFunc) {
         Stream<VersionedEvent> events = eventsForCondition(condition);
 
         AtomicReference<Optional<Long>> lastVersion = new AtomicReference<>(Optional.empty());
 
-        Stream<Event> apply = projectionFunc.apply(Events.consecutiveEventsToEntryStream(events
+        Row3<String, String, String>[] values = projectionFunc.apply(Events.consecutiveEventsToEntryStream(events
                 .peek(event -> lastVersion.set(Optional.of(event.version())))
-                .map(VersionedEvent::event)));
+                .map(VersionedEvent::event)))
+                .map(event -> DSL.row(event.entityId().asString(), event.eventType().asString(), event.data()))
+                .toArray(Row3[]::new);
+
+        if (values.length == 0) {
+            return Optional.empty();
+        }
 
         Condition versionSearch = lastVersion.get()
                 .map(VERSION::greaterThan)
                 .orElse(DSL.trueCondition());
 
-        Event event = apply.findFirst().get();
-        Table<Record3<String, String, String>> values = DSL.values(
-                DSL.row(event.entityId().asString(), event.eventType().asString(), event.data()));
-
         return transactionResult(dsl -> {
-            return dsl.insertInto(eventsTable)
+            return Optional.of(dsl.insertInto(eventsTable)
                     .columns(ENTITY_ID, EVENT_TYPE, DATA)
                     .select(this.<Record3<String, String, String>>selectStar(dsl)
-                            .from(values)
+                            .from(DSL.values(values))
                             .whereNotExists(dsl
                                     .selectOne()
                                     .from(eventsTable)
                                     .where(versionSearch)
                                     .and(condition)))
-                    .execute();
+                    .execute());
         });
     }
 
