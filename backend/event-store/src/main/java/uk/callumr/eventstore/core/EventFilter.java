@@ -21,9 +21,9 @@ public abstract class EventFilter {
         Preconditions.checkArgument(!entityIds().isEmpty(), "At least one entityId must be specified");
     }
 
-    static class Builder extends ImmutableEventFilter.Builder { }
+    public static class Builder extends ImmutableEventFilter.Builder { }
 
-    static Builder builder() {
+    public static Builder builder() {
         return new Builder();
     }
 
