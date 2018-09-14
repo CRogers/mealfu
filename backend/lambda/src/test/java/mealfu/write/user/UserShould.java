@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserShould {
     private final MealfuEventStore eventStore = new MealfuEventStore(new InMemoryEventStore());
-    private final UserId userId = UserId.of("dave");
+    private final UserId userId = UserId.google("dave");
     private final User user = new User(userId, eventStore);
 
     private final RecipeName recipeName = RecipeName.of("tasty pasta");
