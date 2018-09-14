@@ -8,6 +8,14 @@ import uk.callumr.eventstore.core.EventType;
 @Value.Immutable
 public abstract class UserId extends MealfuEntityId<UserEvent> {
 
+    protected abstract OAuth2Provider oAuth2Provider();
+    protected abstract String sub();
+
+    @Override
+    public String identifier() {
+        return oAuth2Provider() + "-" + sub();
+    }
+
     @Override
     public String entityType() {
         return "user";
