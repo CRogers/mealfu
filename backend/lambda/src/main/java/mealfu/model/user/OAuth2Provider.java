@@ -7,7 +7,7 @@ public enum OAuth2Provider {
         return this.name().toLowerCase();
     }
 
-    public OAuth2Provider parse(String str) {
+    public static OAuth2Provider parse(String str) {
         return OAuth2Provider.valueOf(str.toUpperCase());
     }
 }

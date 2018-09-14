@@ -41,7 +41,7 @@ public abstract class UserId extends MealfuEntityId<UserEvent> {
         return MealfuEntityId.parse(s -> {
             List<String> split = Splitter.on('-').limit(2).splitToList(s);
             return builder()
-                    .oAuth2Provider(OAuth2Provider.valueOf(split.get(0)))
+                    .oAuth2Provider(OAuth2Provider.parse(split.get(0)))
                     .sub(split.get(1))
                     .build();
         }, stringId);
