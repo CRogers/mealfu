@@ -2,11 +2,13 @@
 
 set -exu
 
+FRONTEND_REPO="$1"
+
 HASH_MESSAGE="$(git show --oneline | head -n1)"
 
 GH_PAGES_DIR="~/gh-pages"
 
-git clone git@github.com:CRogers/mealfu-frontend.git "${GH_PAGES_DIR}"
+git clone "git@github.com:${FRONTEND_REPO}.git" "${GH_PAGES_DIR}"
 
 rm -rf "${GH_PAGES_DIR}/*"
 cp -r site/* "${GH_PAGES_DIR}"
@@ -24,7 +26,7 @@ echo
 
 if [ -n "$(git status --porcelain)" ]; then
     echo "There are changes, committing and pushing";
-    git commit -m "https://github.com/CRogers/mealfu/commit/${HASH_MESSAGE} (deployed by ${CIRCLE_BUILD_URL}) [skip ci]"
+    git commit -m "${CIRCLE_REPOSITORY_URL}/commit/${HASH_MESSAGE} (deployed by ${CIRCLE_BUILD_URL}) [skip ci]"
     git push origin master
 else
     echo "No changes, doing nothing";

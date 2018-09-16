@@ -170,7 +170,7 @@ jobs:
 
       - run:
           name: Deploying Frontend
-          command: ./scripts/deploy-gh-pages.sh
+          command: ./scripts/deploy-gh-pages.sh CRogers/mealfu-frontend
 
 
 workflows:
